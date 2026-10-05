@@ -7,7 +7,9 @@ import './index.css';
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
     const swPath = `${import.meta.env.BASE_URL}sw.js`;
-    navigator.serviceWorker.register(swPath).catch((err) => {
+    navigator.serviceWorker.register(swPath).then((reg) => {
+      reg.update();
+    }).catch((err) => {
       console.warn('ServiceWorker registration failed: ', err);
     });
   });
