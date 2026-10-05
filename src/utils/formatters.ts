@@ -9,8 +9,9 @@ export function formatCurrency(
 
   // Handle tiny crypto fractions or standard prices
   const decimals = Math.abs(value) < 1 && value !== 0 ? 4 : maxDecimals;
+  const locale = currency === '$' ? 'en-US' : 'en-IN';
 
-  const formatted = new Intl.NumberFormat('en-IN', {
+  const formatted = new Intl.NumberFormat(locale, {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   }).format(value);
@@ -50,19 +51,42 @@ export function formatChange(
   }
 
   const sign = change > 0 ? '+' : change < 0 ? '-' : '';
-  const absFormatted = new Intl.NumberFormat('en-IN', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+  const locale = currency === '$' ? 'en-US' : 'en-IN';
+  const decimals = Math.abs(change) < 1 && change !== 0 ? 4 : 2;
+  const absFormatted = new Intl.NumberFormat(locale, {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
   }).format(Math.abs(change));
 
   return `${sign}${currency}${absFormatted}`;
 }
 
-export function formatCompactNumber(value: number | null | undefined): string {
+export function formatCompactNumber(
+  value: number | null | undefined,
+  currency = '₹'
+): string {
   if (value === null || value === undefined || isNaN(value)) {
     return 'N/A';
   }
 
+  // Western notation (B, M, K) for USD / Crypto
+  if (currency === '$') {
+    if (value >= 1_000_000_000_000) {
+      return `$${(value / 1_000_000_000_000).toFixed(2)}T`;
+    }
+    if (value >= 1_000_000_000) {
+      return `$${(value / 1_000_000_000).toFixed(2)}B`;
+    }
+    if (value >= 1_000_000) {
+      return `$${(value / 1_000_000).toFixed(2)}M`;
+    }
+    if (value >= 1_000) {
+      return `$${(value / 1_000).toFixed(1)}K`;
+    }
+    return `$${value.toLocaleString('en-US')}`;
+  }
+
+  // Indian numbering system (Cr, L, K) for INR / Stocks & Commodities
   if (value >= 10000000) {
     return `${(value / 10000000).toFixed(2)} Cr`;
   }

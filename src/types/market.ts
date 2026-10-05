@@ -9,7 +9,7 @@ export interface HistoricalPrice {
 }
 
 export interface BaseAsset {
-  id: string; // e.g. "stock:RELIANCE:NSE", "crypto:bitcoin:INR", "commodity:GOLD_10G:INR"
+  id: string; // e.g. "stock:RELIANCE:NSE", "crypto:bitcoin:USD", "commodity:GOLD_10G:INR"
   symbol: string;
   name: string;
   category: AssetCategory;

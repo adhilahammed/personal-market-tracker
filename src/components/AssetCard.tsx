@@ -32,6 +32,8 @@ export const AssetCard: React.FC<AssetCardProps> = ({
     return `${asset.symbol} · ${asset.unit}`;
   };
 
+  const currency = asset.category === 'crypto' ? '$' : '₹';
+
   return (
     <div
       role="button"
@@ -96,11 +98,12 @@ export const AssetCard: React.FC<AssetCardProps> = ({
       {/* Price & Change */}
       <div className="mt-3.5 flex items-baseline justify-between gap-2">
         <div className="text-xl font-bold font-mono tracking-tight text-slate-950 dark:text-white">
-          {formatCurrency(asset.price)}
+          {formatCurrency(asset.price, currency)}
         </div>
         <PriceChange
           change={asset.change}
           changePercent={asset.changePercent}
+          currency={currency}
           size="sm"
           showAmount={true}
         />

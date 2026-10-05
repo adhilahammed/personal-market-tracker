@@ -19,9 +19,11 @@ export function useCryptoQuotes(ids: string[] = INITIAL_CRYPTO_IDS) {
 
         ids.forEach((id) => {
           const resolved = cryptoApi.resolveId(id);
-          const fullId = `crypto:${resolved}:INR`;
-          if (cached[fullId] && cached[fullId].category === 'crypto') {
-            fallback[fullId] = { ...(cached[fullId] as CryptoAsset), isOfflineCached: true };
+          const fullId = `crypto:${resolved}:USD`;
+          const legacyId = `crypto:${resolved}:INR`;
+          const cachedAsset = cached[fullId] || cached[legacyId];
+          if (cachedAsset && cachedAsset.category === 'crypto') {
+            fallback[fullId] = { ...(cachedAsset as CryptoAsset), isOfflineCached: true };
             fallback[resolved] = fallback[fullId];
             hasAny = true;
           }
@@ -44,15 +46,17 @@ export function useCryptoQuote(idOrSymbol: string) {
     queryKey: ['crypto', 'quote', idOrSymbol],
     queryFn: async () => {
       const resolved = cryptoApi.resolveId(idOrSymbol);
-      const fullId = `crypto:${resolved}:INR`;
+      const fullId = `crypto:${resolved}:USD`;
+      const legacyId = `crypto:${resolved}:INR`;
       try {
         const quote = await cryptoApi.getQuote(idOrSymbol);
         saveCachedMarketData({ [fullId]: quote });
         return quote;
       } catch (error) {
         const cached = getCachedMarketData();
-        if (cached[fullId] && cached[fullId].category === 'crypto') {
-          return { ...(cached[fullId] as CryptoAsset), isOfflineCached: true };
+        const cachedAsset = cached[fullId] || cached[legacyId];
+        if (cachedAsset && cachedAsset.category === 'crypto') {
+          return { ...(cachedAsset as CryptoAsset), isOfflineCached: true };
         }
         throw error;
       }

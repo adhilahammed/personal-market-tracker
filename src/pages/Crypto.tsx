@@ -43,7 +43,7 @@ export const CryptoPage: React.FC = () => {
   const initialCryptoAssets = useMemo(() => {
     if (!quotes) return [];
     return INITIAL_CRYPTO_IDS.map((id) => {
-      const fullId = `crypto:${id}:INR`;
+      const fullId = `crypto:${id}:USD`;
       return (
         quotes[fullId] ||
         quotes[id] || {
@@ -103,7 +103,7 @@ export const CryptoPage: React.FC = () => {
                         {res.name}
                       </div>
                       <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                        {res.symbol} · INR
+                        {res.symbol} · USD
                       </div>
                     </div>
 
@@ -135,7 +135,7 @@ export const CryptoPage: React.FC = () => {
         <div className="space-y-3">
           <div className="flex items-center justify-between px-1">
             <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              Top Cryptocurrencies (INR)
+              Top Cryptocurrencies (USD)
             </h2>
             {isLoading && (
               <span className="text-xs text-blue-500 font-medium animate-pulse">

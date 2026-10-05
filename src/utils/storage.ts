@@ -9,8 +9,8 @@ const THEME_KEY = 'my_markets_theme_v1';
 export const DEFAULT_FAVORITES: FavoriteItem[] = [
   { id: 'stock:RELIANCE:NSE', category: 'stock', symbol: 'RELIANCE', name: 'Reliance Industries', addedAt: 1 },
   { id: 'stock:TCS:NSE', category: 'stock', symbol: 'TCS', name: 'Tata Consultancy Services', addedAt: 2 },
-  { id: 'crypto:bitcoin:INR', category: 'crypto', symbol: 'BTC', name: 'Bitcoin', addedAt: 3 },
-  { id: 'crypto:ethereum:INR', category: 'crypto', symbol: 'ETH', name: 'Ethereum', addedAt: 4 },
+  { id: 'crypto:bitcoin:USD', category: 'crypto', symbol: 'BTC', name: 'Bitcoin', addedAt: 3 },
+  { id: 'crypto:ethereum:USD', category: 'crypto', symbol: 'ETH', name: 'Ethereum', addedAt: 4 },
   { id: 'commodity:GOLD_10G:INR', category: 'commodity', symbol: 'GOLD', name: 'Gold (24K)', addedAt: 5 },
 ];
 
@@ -22,7 +22,17 @@ export function getStoredFavorites(): FavoriteItem[] {
       return DEFAULT_FAVORITES;
     }
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : DEFAULT_FAVORITES;
+    if (Array.isArray(parsed)) {
+      // Auto-migrate crypto :INR IDs to :USD
+      const migrated = parsed.map((item: FavoriteItem) => {
+        if (item.category === 'crypto' && item.id.endsWith(':INR')) {
+          return { ...item, id: item.id.replace(/:INR$/, ':USD') };
+        }
+        return item;
+      });
+      return migrated;
+    }
+    return DEFAULT_FAVORITES;
   } catch (e) {
     console.error('Error reading favorites from localStorage:', e);
     return DEFAULT_FAVORITES;

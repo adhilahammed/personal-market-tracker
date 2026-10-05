@@ -172,13 +172,14 @@ export const AssetDetailsPage: React.FC = () => {
             Current Price
           </div>
           <div className="text-3xl font-extrabold font-mono tracking-tight text-slate-950 dark:text-white">
-            {formatCurrency(currentAsset?.price)}
+            {formatCurrency(currentAsset?.price, isCrypto ? '$' : '₹')}
           </div>
         </div>
 
         <PriceChange
           change={currentAsset?.change}
           changePercent={currentAsset?.changePercent}
+          currency={isCrypto ? '$' : '₹'}
           size="lg"
           showAmount={true}
         />
@@ -194,6 +195,7 @@ export const AssetDetailsPage: React.FC = () => {
           isLoading={isHistoryLoading}
           selectedPeriod={period}
           onPeriodChange={setPeriod}
+          currency={isCrypto ? '$' : '₹'}
           isPositive={isPositive}
         />
       </div>
@@ -208,11 +210,11 @@ export const AssetDetailsPage: React.FC = () => {
           {/* For Stocks */}
           {isStock && (
             <>
-              <StatItem label="Open" value={formatCurrency((currentAsset as StockAsset)?.open)} />
-              <StatItem label="Day High" value={formatCurrency((currentAsset as StockAsset)?.high24h)} />
-              <StatItem label="Day Low" value={formatCurrency((currentAsset as StockAsset)?.low24h)} />
-              <StatItem label="Prev. Close" value={formatCurrency((currentAsset as StockAsset)?.previousClose)} />
-              <StatItem label="Volume" value={formatCompactNumber((currentAsset as StockAsset)?.volume)} />
+              <StatItem label="Open" value={formatCurrency((currentAsset as StockAsset)?.open, '₹')} />
+              <StatItem label="Day High" value={formatCurrency((currentAsset as StockAsset)?.high24h, '₹')} />
+              <StatItem label="Day Low" value={formatCurrency((currentAsset as StockAsset)?.low24h, '₹')} />
+              <StatItem label="Prev. Close" value={formatCurrency((currentAsset as StockAsset)?.previousClose, '₹')} />
+              <StatItem label="Volume" value={formatCompactNumber((currentAsset as StockAsset)?.volume, '₹')} />
               <StatItem label="Exchange" value={(currentAsset as StockAsset)?.exchange || 'NSE'} />
             </>
           )}
@@ -220,15 +222,15 @@ export const AssetDetailsPage: React.FC = () => {
           {/* For Crypto */}
           {isCrypto && (
             <>
-              <StatItem label="24h High" value={formatCurrency((currentAsset as CryptoAsset)?.high24h)} />
-              <StatItem label="24h Low" value={formatCurrency((currentAsset as CryptoAsset)?.low24h)} />
-              <StatItem label="Market Cap" value={formatCompactNumber((currentAsset as CryptoAsset)?.marketCap)} />
-              <StatItem label="24h Volume" value={formatCompactNumber((currentAsset as CryptoAsset)?.volume)} />
+              <StatItem label="24h High" value={formatCurrency((currentAsset as CryptoAsset)?.high24h, '$')} />
+              <StatItem label="24h Low" value={formatCurrency((currentAsset as CryptoAsset)?.low24h, '$')} />
+              <StatItem label="Market Cap" value={formatCompactNumber((currentAsset as CryptoAsset)?.marketCap, '$')} />
+              <StatItem label="24h Volume" value={formatCompactNumber((currentAsset as CryptoAsset)?.volume, '$')} />
               <StatItem
                 label="Rank"
                 value={(currentAsset as CryptoAsset)?.marketCapRank ? `#${(currentAsset as CryptoAsset).marketCapRank}` : 'N/A'}
               />
-              <StatItem label="Pair" value="INR (Indian Rupee)" />
+              <StatItem label="Pair" value="USD ($)" />
             </>
           )}
 
@@ -236,9 +238,9 @@ export const AssetDetailsPage: React.FC = () => {
           {isCommodity && (
             <>
               <StatItem label="Unit" value={(currentAsset as CommodityAsset)?.unit || 'N/A'} />
-              <StatItem label="Day High" value={formatCurrency((currentAsset as CommodityAsset)?.high24h)} />
-              <StatItem label="Day Low" value={formatCurrency((currentAsset as CommodityAsset)?.low24h)} />
-              <StatItem label="Prev. Close" value={formatCurrency((currentAsset as CommodityAsset)?.previousClose)} />
+              <StatItem label="Day High" value={formatCurrency((currentAsset as CommodityAsset)?.high24h, '₹')} />
+              <StatItem label="Day Low" value={formatCurrency((currentAsset as CommodityAsset)?.low24h, '₹')} />
+              <StatItem label="Prev. Close" value={formatCurrency((currentAsset as CommodityAsset)?.previousClose, '₹')} />
               <StatItem label="Benchmark" value="LBMA / Physical Spot" />
               <StatItem label="Currency" value="INR (₹)" />
             </>

@@ -31,7 +31,7 @@ class CryptoApiService {
 
   async getQuote(idOrSymbol: string): Promise<CryptoAsset> {
     const id = this.resolveId(idOrSymbol);
-    const url = `${this.baseUrl}/coins/markets?vs_currency=inr&ids=${encodeURIComponent(id)}&order=market_cap_desc&sparkline=false&price_change_percentage=24h`;
+    const url = `${this.baseUrl}/coins/markets?vs_currency=usd&ids=${encodeURIComponent(id)}&order=market_cap_desc&sparkline=false&price_change_percentage=24h`;
 
     const response = await fetch(url, {
       headers: { Accept: 'application/json' },
@@ -48,7 +48,7 @@ class CryptoApiService {
       throw new Error(`No crypto data found for ${id}`);
     }
 
-    const assetId = `crypto:${item.id}:INR`;
+    const assetId = `crypto:${item.id}:USD`;
 
     return {
       id: assetId,
@@ -73,7 +73,7 @@ class CryptoApiService {
 
     if (cleanIds.length === 0) return results;
 
-    const url = `${this.baseUrl}/coins/markets?vs_currency=inr&ids=${encodeURIComponent(cleanIds.join(','))}&order=market_cap_desc&sparkline=false&price_change_percentage=24h`;
+    const url = `${this.baseUrl}/coins/markets?vs_currency=usd&ids=${encodeURIComponent(cleanIds.join(','))}&order=market_cap_desc&sparkline=false&price_change_percentage=24h`;
 
     try {
       const response = await fetch(url, {
@@ -84,7 +84,7 @@ class CryptoApiService {
         const data = await response.json();
         if (Array.isArray(data)) {
           data.forEach((item) => {
-            const assetId = `crypto:${item.id}:INR`;
+            const assetId = `crypto:${item.id}:USD`;
             const quote: CryptoAsset = {
               id: assetId,
               symbol: (item.symbol || item.id).toUpperCase(),
@@ -101,6 +101,8 @@ class CryptoApiService {
               lastUpdated: item.last_updated || new Date().toISOString(),
             };
             results[assetId] = quote;
+            // Also provide aliases for backwards compatibility with any stored IDs
+            results[`crypto:${item.id}:INR`] = quote;
             results[item.id] = quote;
             results[item.symbol?.toUpperCase()] = quote;
           });
@@ -133,7 +135,7 @@ class CryptoApiService {
         break;
     }
 
-    const url = `${this.baseUrl}/coins/${encodeURIComponent(id)}/market_chart?vs_currency=inr&days=${days}`;
+    const url = `${this.baseUrl}/coins/${encodeURIComponent(id)}/market_chart?vs_currency=usd&days=${days}`;
 
     try {
       const response = await fetch(url, {
@@ -164,7 +166,7 @@ class CryptoApiService {
     const localMatches = CRYPTO_DIRECTORY.filter(
       (c) => c.symbol.toLowerCase().includes(q) || c.name.toLowerCase().includes(q)
     ).map((c) => ({
-      id: `crypto:${c.id}:INR`,
+      id: `crypto:${c.id}:USD`,
       symbol: c.symbol,
       name: c.name,
       category: 'crypto' as const,
@@ -188,7 +190,7 @@ class CryptoApiService {
       const coins = data.coins || [];
 
       return coins.slice(0, 15).map((c: { id: string; name: string; symbol: string }) => ({
-        id: `crypto:${c.id}:INR`,
+        id: `crypto:${c.id}:USD`,
         symbol: c.symbol?.toUpperCase() || c.id.toUpperCase(),
         name: c.name || c.id,
         category: 'crypto' as const,
