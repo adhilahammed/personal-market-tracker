@@ -3,9 +3,12 @@ import { CommodityAsset, HistoricalPrice, TimePeriod } from '../types/market';
 const TROY_OZ_TO_GRAMS = 31.1034768;
 
 export const INITIAL_COMMODITIES = [
+  'commodity:GOLD_8G_22K:INR',
+  'commodity:GOLD_8G_24K:INR',
+  'commodity:GOLD_1G_22K:INR',
   'commodity:GOLD_10G:INR',
-  'commodity:SILVER_1KG:INR',
   'commodity:GOLD_1G:INR',
+  'commodity:SILVER_1KG:INR',
   'commodity:SILVER_1G:INR',
 ];
 
@@ -33,48 +36,105 @@ class CommodityApiService {
 
     const results: Record<string, CommodityAsset> = {};
 
-    // 1. Gold calculations
+    // 1. Gold calculations (24K pure & 22K standard jewellery rate)
     if (paxGold && paxGold.current_price) {
       const goldPricePerOz = paxGold.current_price;
-      const goldPricePerGram = goldPricePerOz / TROY_OZ_TO_GRAMS;
-      const goldPricePer10g = goldPricePerGram * 10;
+      const goldPricePerGram24K = goldPricePerOz / TROY_OZ_TO_GRAMS;
+      const goldPricePerGram22K = goldPricePerGram24K * (22 / 24);
+
+      const goldPricePer8g22K = goldPricePerGram22K * 8;
+      const goldPricePer8g24K = goldPricePerGram24K * 8;
+      const goldPricePer10g24K = goldPricePerGram24K * 10;
 
       const changePct = paxGold.price_change_percentage_24h ?? null;
-      const change10g = changePct !== null ? (goldPricePer10g * changePct) / 100 : null;
-      const change1g = changePct !== null ? (goldPricePerGram * changePct) / 100 : null;
+      const change8g22K = changePct !== null ? (goldPricePer8g22K * changePct) / 100 : null;
+      const change8g24K = changePct !== null ? (goldPricePer8g24K * changePct) / 100 : null;
+      const change1g22K = changePct !== null ? (goldPricePerGram22K * changePct) / 100 : null;
+      const change10g24K = changePct !== null ? (goldPricePer10g24K * changePct) / 100 : null;
+      const change1g24K = changePct !== null ? (goldPricePerGram24K * changePct) / 100 : null;
 
-      const goldHigh10g = paxGold.high_24h ? (paxGold.high_24h / TROY_OZ_TO_GRAMS) * 10 : null;
-      const goldLow10g = paxGold.low_24h ? (paxGold.low_24h / TROY_OZ_TO_GRAMS) * 10 : null;
+      const highGram24K = paxGold.high_24h ? paxGold.high_24h / TROY_OZ_TO_GRAMS : null;
+      const lowGram24K = paxGold.low_24h ? paxGold.low_24h / TROY_OZ_TO_GRAMS : null;
 
       const lastUpdated = paxGold.last_updated || new Date().toISOString();
 
-      results['commodity:GOLD_10G:INR'] = {
-        id: 'commodity:GOLD_10G:INR',
-        symbol: 'GOLD 10G',
-        name: 'Gold (24K, 10g)',
+      // 8g 22K (1 Pavan / Sovereign) - Indian Retail Standard Benchmark
+      results['commodity:GOLD_8G_22K:INR'] = {
+        id: 'commodity:GOLD_8G_22K:INR',
+        symbol: 'GOLD 8G (22K)',
+        name: 'Gold 22K (8g / 1 Pavan)',
         category: 'commodity',
-        unit: '10 grams',
-        price: Number(goldPricePer10g.toFixed(2)),
-        change: change10g !== null ? Number(change10g.toFixed(2)) : null,
+        unit: '8 grams · 1 Pavan (22K)',
+        price: Number(goldPricePer8g22K.toFixed(2)),
+        change: change8g22K !== null ? Number(change8g22K.toFixed(2)) : null,
         changePercent: changePct !== null ? Number(changePct.toFixed(2)) : null,
-        high24h: goldHigh10g !== null ? Number(goldHigh10g.toFixed(2)) : null,
-        low24h: goldLow10g !== null ? Number(goldLow10g.toFixed(2)) : null,
-        previousClose: change10g !== null ? Number((goldPricePer10g - change10g).toFixed(2)) : null,
+        high24h: highGram24K !== null ? Number((highGram24K * (22 / 24) * 8).toFixed(2)) : null,
+        low24h: lowGram24K !== null ? Number((lowGram24K * (22 / 24) * 8).toFixed(2)) : null,
+        previousClose: change8g22K !== null ? Number((goldPricePer8g22K - change8g22K).toFixed(2)) : null,
         lastUpdated,
       };
 
+      // 8g 24K (Pure Gold 8 grams)
+      results['commodity:GOLD_8G_24K:INR'] = {
+        id: 'commodity:GOLD_8G_24K:INR',
+        symbol: 'GOLD 8G (24K)',
+        name: 'Gold 24K (8g)',
+        category: 'commodity',
+        unit: '8 grams (24K Pure)',
+        price: Number(goldPricePer8g24K.toFixed(2)),
+        change: change8g24K !== null ? Number(change8g24K.toFixed(2)) : null,
+        changePercent: changePct !== null ? Number(changePct.toFixed(2)) : null,
+        high24h: highGram24K !== null ? Number((highGram24K * 8).toFixed(2)) : null,
+        low24h: lowGram24K !== null ? Number((lowGram24K * 8).toFixed(2)) : null,
+        previousClose: change8g24K !== null ? Number((goldPricePer8g24K - change8g24K).toFixed(2)) : null,
+        lastUpdated,
+      };
+
+      // 1g 22K
+      results['commodity:GOLD_1G_22K:INR'] = {
+        id: 'commodity:GOLD_1G_22K:INR',
+        symbol: 'GOLD 1G (22K)',
+        name: 'Gold 22K (1g)',
+        category: 'commodity',
+        unit: '1 gram (22K)',
+        price: Number(goldPricePerGram22K.toFixed(2)),
+        change: change1g22K !== null ? Number(change1g22K.toFixed(2)) : null,
+        changePercent: changePct !== null ? Number(changePct.toFixed(2)) : null,
+        high24h: highGram24K !== null ? Number((highGram24K * (22 / 24)).toFixed(2)) : null,
+        low24h: lowGram24K !== null ? Number((lowGram24K * (22 / 24)).toFixed(2)) : null,
+        previousClose: change1g22K !== null ? Number((goldPricePerGram22K - change1g22K).toFixed(2)) : null,
+        lastUpdated,
+      };
+
+      // 10g 24K
+      results['commodity:GOLD_10G:INR'] = {
+        id: 'commodity:GOLD_10G:INR',
+        symbol: 'GOLD 10G',
+        name: 'Gold 24K (10g)',
+        category: 'commodity',
+        unit: '10 grams',
+        price: Number(goldPricePer10g24K.toFixed(2)),
+        change: change10g24K !== null ? Number(change10g24K.toFixed(2)) : null,
+        changePercent: changePct !== null ? Number(changePct.toFixed(2)) : null,
+        high24h: highGram24K !== null ? Number((highGram24K * 10).toFixed(2)) : null,
+        low24h: lowGram24K !== null ? Number((lowGram24K * 10).toFixed(2)) : null,
+        previousClose: change10g24K !== null ? Number((goldPricePer10g24K - change10g24K).toFixed(2)) : null,
+        lastUpdated,
+      };
+
+      // 1g 24K
       results['commodity:GOLD_1G:INR'] = {
         id: 'commodity:GOLD_1G:INR',
         symbol: 'GOLD 1G',
-        name: 'Gold (24K, 1g)',
+        name: 'Gold 24K (1g)',
         category: 'commodity',
         unit: '1 gram',
-        price: Number(goldPricePerGram.toFixed(2)),
-        change: change1g !== null ? Number(change1g.toFixed(2)) : null,
+        price: Number(goldPricePerGram24K.toFixed(2)),
+        change: change1g24K !== null ? Number(change1g24K.toFixed(2)) : null,
         changePercent: changePct !== null ? Number(changePct.toFixed(2)) : null,
-        high24h: goldHigh10g !== null ? Number((goldHigh10g / 10).toFixed(2)) : null,
-        low24h: goldLow10g !== null ? Number((goldLow10g / 10).toFixed(2)) : null,
-        previousClose: change1g !== null ? Number((goldPricePerGram - change1g).toFixed(2)) : null,
+        high24h: highGram24K !== null ? Number(highGram24K.toFixed(2)) : null,
+        low24h: lowGram24K !== null ? Number(lowGram24K.toFixed(2)) : null,
+        previousClose: change1g24K !== null ? Number((goldPricePerGram24K - change1g24K).toFixed(2)) : null,
         lastUpdated,
       };
     }
@@ -137,18 +197,29 @@ class CommodityApiService {
     if (id.toLowerCase().includes('silver')) {
       return all['commodity:SILVER_1KG:INR'] || Object.values(all)[0];
     }
-    return all['commodity:GOLD_10G:INR'] || Object.values(all)[0];
+    return (
+      all['commodity:GOLD_8G_22K:INR'] ||
+      all['commodity:GOLD_10G:INR'] ||
+      Object.values(all)[0]
+    );
   }
 
   async getHistoricalData(id: string, period: TimePeriod): Promise<HistoricalPrice[]> {
     const isSilver = id.toLowerCase().includes('silver');
     const coinId = isSilver ? 'kinesis-silver' : 'pax-gold';
-    const isPer10g = id.includes('10G');
-    const isPerKg = id.includes('1KG');
 
     let multiplier = 1 / TROY_OZ_TO_GRAMS;
-    if (isPer10g) multiplier = (1 / TROY_OZ_TO_GRAMS) * 10;
-    if (isPerKg) multiplier = (1 / TROY_OZ_TO_GRAMS) * 1000;
+    if (id.includes('GOLD_8G_22K')) {
+      multiplier = (1 / TROY_OZ_TO_GRAMS) * 8 * (22 / 24);
+    } else if (id.includes('GOLD_8G_24K') || id.includes('8G')) {
+      multiplier = (1 / TROY_OZ_TO_GRAMS) * 8;
+    } else if (id.includes('GOLD_1G_22K')) {
+      multiplier = (1 / TROY_OZ_TO_GRAMS) * (22 / 24);
+    } else if (id.includes('10G')) {
+      multiplier = (1 / TROY_OZ_TO_GRAMS) * 10;
+    } else if (id.includes('1KG')) {
+      multiplier = (1 / TROY_OZ_TO_GRAMS) * 1000;
+    }
 
     let days = '7';
     switch (period) {

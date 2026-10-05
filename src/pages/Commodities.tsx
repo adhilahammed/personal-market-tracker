@@ -11,19 +11,36 @@ export const CommoditiesPage: React.FC = () => {
   const commodityAssets = useMemo(() => {
     if (!quotes) return [];
     return INITIAL_COMMODITIES.map((id) => {
+      const getCommodityName = (commodityId: string) => {
+        if (commodityId.includes('GOLD_8G_22K')) return 'Gold 22K (8g / 1 Pavan)';
+        if (commodityId.includes('GOLD_8G_24K')) return 'Gold 24K (8g)';
+        if (commodityId.includes('GOLD_1G_22K')) return 'Gold 22K (1g)';
+        if (commodityId.includes('GOLD_10G')) return 'Gold 24K (10g)';
+        if (commodityId.includes('GOLD_1G')) return 'Gold 24K (1g)';
+        if (commodityId.includes('SILVER_1KG')) return 'Silver (1kg)';
+        return 'Silver (1g)';
+      };
+
+      const getCommodityUnit = (commodityId: string) => {
+        if (commodityId.includes('GOLD_8G_22K')) return '8 grams · 1 Pavan (22K)';
+        if (commodityId.includes('GOLD_8G_24K')) return '8 grams (24K)';
+        if (commodityId.includes('GOLD_1G_22K')) return '1 gram (22K)';
+        if (commodityId.includes('GOLD_10G')) return '10 grams';
+        if (commodityId.includes('SILVER_1KG')) return '1 kg';
+        return '1 gram';
+      };
+
       return (
         quotes[id] || {
           id,
-          symbol: id.includes('GOLD') ? 'GOLD' : 'SILVER',
-          name: id.includes('GOLD_10G')
-            ? 'Gold (24K, 10g)'
-            : id.includes('GOLD_1G')
-            ? 'Gold (24K, 1g)'
-            : id.includes('SILVER_1KG')
-            ? 'Silver (1kg)'
-            : 'Silver (1g)',
+          symbol: id.includes('GOLD_8G')
+            ? 'GOLD 8G'
+            : id.includes('GOLD')
+            ? 'GOLD'
+            : 'SILVER',
+          name: getCommodityName(id),
           category: 'commodity' as const,
-          unit: id.includes('10G') ? '10 grams' : id.includes('1KG') ? '1 kg' : '1 gram',
+          unit: getCommodityUnit(id),
           price: null,
           change: null,
           changePercent: null,

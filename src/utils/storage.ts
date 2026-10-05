@@ -7,11 +7,12 @@ const THEME_KEY = 'my_markets_theme_v1';
 
 // Initial default favorites with unique IDs
 export const DEFAULT_FAVORITES: FavoriteItem[] = [
-  { id: 'stock:RELIANCE:NSE', category: 'stock', symbol: 'RELIANCE', name: 'Reliance Industries', addedAt: 1 },
-  { id: 'stock:TCS:NSE', category: 'stock', symbol: 'TCS', name: 'Tata Consultancy Services', addedAt: 2 },
-  { id: 'crypto:bitcoin:USD', category: 'crypto', symbol: 'BTC', name: 'Bitcoin', addedAt: 3 },
-  { id: 'crypto:ethereum:USD', category: 'crypto', symbol: 'ETH', name: 'Ethereum', addedAt: 4 },
-  { id: 'commodity:GOLD_10G:INR', category: 'commodity', symbol: 'GOLD', name: 'Gold (24K)', addedAt: 5 },
+  { id: 'commodity:GOLD_8G_22K:INR', category: 'commodity', symbol: 'GOLD 8G', name: 'Gold 22K (8g / 1 Pavan)', addedAt: 1 },
+  { id: 'stock:RELIANCE:NSE', category: 'stock', symbol: 'RELIANCE', name: 'Reliance Industries', addedAt: 2 },
+  { id: 'stock:TCS:NSE', category: 'stock', symbol: 'TCS', name: 'Tata Consultancy Services', addedAt: 3 },
+  { id: 'crypto:bitcoin:USD', category: 'crypto', symbol: 'BTC', name: 'Bitcoin', addedAt: 4 },
+  { id: 'crypto:ethereum:USD', category: 'crypto', symbol: 'ETH', name: 'Ethereum', addedAt: 5 },
+  { id: 'commodity:GOLD_10G:INR', category: 'commodity', symbol: 'GOLD 10G', name: 'Gold 24K (10g)', addedAt: 6 },
 ];
 
 export function getStoredFavorites(): FavoriteItem[] {
