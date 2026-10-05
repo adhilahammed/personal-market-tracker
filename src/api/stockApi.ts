@@ -24,33 +24,91 @@ export interface TejResponse {
   };
 }
 
-// Known company names for display
-export const STOCK_DIRECTORY: { symbol: string; name: string; exchange: 'NSE' | 'BSE' }[] = [
-  { symbol: 'RELIANCE', name: 'Reliance Industries Ltd.', exchange: 'NSE' },
-  { symbol: 'TCS', name: 'Tata Consultancy Services', exchange: 'NSE' },
-  { symbol: 'INFY', name: 'Infosys Limited', exchange: 'NSE' },
-  { symbol: 'HDFCBANK', name: 'HDFC Bank Limited', exchange: 'NSE' },
-  { symbol: 'ICICIBANK', name: 'ICICI Bank Limited', exchange: 'NSE' },
-  { symbol: 'SBIN', name: 'State Bank of India', exchange: 'NSE' },
-  { symbol: 'BHARTIARTL', name: 'Bharti Airtel Limited', exchange: 'NSE' },
-  { symbol: 'ITC', name: 'ITC Limited', exchange: 'NSE' },
-  { symbol: 'KOTAKBANK', name: 'Kotak Mahindra Bank', exchange: 'NSE' },
-  { symbol: 'LT', name: 'Larsen & Toubro Ltd.', exchange: 'NSE' },
-  { symbol: 'HINDUNILVR', name: 'Hindustan Unilever Ltd.', exchange: 'NSE' },
-  { symbol: 'AXISBANK', name: 'Axis Bank Limited', exchange: 'NSE' },
-  { symbol: 'TATAMOTORS', name: 'Tata Motors Limited', exchange: 'NSE' },
-  { symbol: 'MARUTI', name: 'Maruti Suzuki India Ltd.', exchange: 'NSE' },
-  { symbol: 'SUNPHARMA', name: 'Sun Pharmaceutical Ind.', exchange: 'NSE' },
-  { symbol: 'TATASTEEL', name: 'Tata Steel Limited', exchange: 'NSE' },
-  { symbol: 'BAJFINANCE', name: 'Bajaj Finance Limited', exchange: 'NSE' },
-  { symbol: 'ADANIENT', name: 'Adani Enterprises Ltd.', exchange: 'NSE' },
-  { symbol: 'WIPRO', name: 'Wipro Limited', exchange: 'NSE' },
-  { symbol: 'NTPC', name: 'NTPC Limited', exchange: 'NSE' },
-  { symbol: 'POWERGRID', name: 'Power Grid Corporation', exchange: 'NSE' },
-  { symbol: 'TITAN', name: 'Titan Company Limited', exchange: 'NSE' },
+// Known company directory categorized by Market Cap
+export interface StockDirectoryItem {
+  symbol: string;
+  name: string;
+  exchange: 'NSE' | 'BSE';
+  capCategory: 'large' | 'mid' | 'small';
+}
+
+export const STOCK_DIRECTORY: StockDirectoryItem[] = [
+  // Large Cap (Nifty 50 Giants)
+  { symbol: 'RELIANCE', name: 'Reliance Industries Ltd.', exchange: 'NSE', capCategory: 'large' },
+  { symbol: 'TCS', name: 'Tata Consultancy Services', exchange: 'NSE', capCategory: 'large' },
+  { symbol: 'HDFCBANK', name: 'HDFC Bank Limited', exchange: 'NSE', capCategory: 'large' },
+  { symbol: 'ICICIBANK', name: 'ICICI Bank Limited', exchange: 'NSE', capCategory: 'large' },
+  { symbol: 'BHARTIARTL', name: 'Bharti Airtel Limited', exchange: 'NSE', capCategory: 'large' },
+  { symbol: 'SBIN', name: 'State Bank of India', exchange: 'NSE', capCategory: 'large' },
+  { symbol: 'INFY', name: 'Infosys Limited', exchange: 'NSE', capCategory: 'large' },
+  { symbol: 'ITC', name: 'ITC Limited', exchange: 'NSE', capCategory: 'large' },
+  { symbol: 'LT', name: 'Larsen & Toubro Ltd.', exchange: 'NSE', capCategory: 'large' },
+  { symbol: 'TATAMOTORS', name: 'Tata Motors Limited', exchange: 'NSE', capCategory: 'large' },
+  { symbol: 'MARUTI', name: 'Maruti Suzuki India Ltd.', exchange: 'NSE', capCategory: 'large' },
+  { symbol: 'SUNPHARMA', name: 'Sun Pharmaceutical Ind.', exchange: 'NSE', capCategory: 'large' },
+  { symbol: 'TATASTEEL', name: 'Tata Steel Limited', exchange: 'NSE', capCategory: 'large' },
+  { symbol: 'BAJFINANCE', name: 'Bajaj Finance Limited', exchange: 'NSE', capCategory: 'large' },
+  { symbol: 'ADANIENT', name: 'Adani Enterprises Ltd.', exchange: 'NSE', capCategory: 'large' },
+  { symbol: 'WIPRO', name: 'Wipro Limited', exchange: 'NSE', capCategory: 'large' },
+  { symbol: 'NTPC', name: 'NTPC Limited', exchange: 'NSE', capCategory: 'large' },
+  { symbol: 'POWERGRID', name: 'Power Grid Corporation', exchange: 'NSE', capCategory: 'large' },
+  { symbol: 'TITAN', name: 'Titan Company Limited', exchange: 'NSE', capCategory: 'large' },
+  { symbol: 'ULTRACEMCO', name: 'UltraTech Cement Ltd.', exchange: 'NSE', capCategory: 'large' },
+  { symbol: 'ASIANPAINT', name: 'Asian Paints Limited', exchange: 'NSE', capCategory: 'large' },
+  { symbol: 'COALINDIA', name: 'Coal India Limited', exchange: 'NSE', capCategory: 'large' },
+
+  // Mid Cap (High Growth / Nifty Midcap Leaders)
+  { symbol: 'ZOMATO', name: 'Zomato Limited', exchange: 'NSE', capCategory: 'mid' },
+  { symbol: 'BEL', name: 'Bharat Electronics Ltd.', exchange: 'NSE', capCategory: 'mid' },
+  { symbol: 'TRENT', name: 'Trent Limited', exchange: 'NSE', capCategory: 'mid' },
+  { symbol: 'POLYCAB', name: 'Polycab India Ltd.', exchange: 'NSE', capCategory: 'mid' },
+  { symbol: 'PERSISTENT', name: 'Persistent Systems Ltd.', exchange: 'NSE', capCategory: 'mid' },
+  { symbol: 'DIXON', name: 'Dixon Technologies Ltd.', exchange: 'NSE', capCategory: 'mid' },
+  { symbol: 'SUZLON', name: 'Suzlon Energy Limited', exchange: 'NSE', capCategory: 'mid' },
+  { symbol: 'HAL', name: 'Hindustan Aeronautics Ltd.', exchange: 'NSE', capCategory: 'mid' },
+  { symbol: 'FEDERALBNK', name: 'Federal Bank Limited', exchange: 'NSE', capCategory: 'mid' },
+  { symbol: 'BHEL', name: 'Bharat Heavy Electricals', exchange: 'NSE', capCategory: 'mid' },
+  { symbol: 'COFORGE', name: 'Coforge Limited', exchange: 'NSE', capCategory: 'mid' },
+  { symbol: 'TATAELXSI', name: 'Tata Elxsi Limited', exchange: 'NSE', capCategory: 'mid' },
+  { symbol: 'KPITTECH', name: 'KPIT Technologies Ltd.', exchange: 'NSE', capCategory: 'mid' },
+  { symbol: 'ASHOKLEY', name: 'Ashok Leyland Limited', exchange: 'NSE', capCategory: 'mid' },
+  { symbol: 'MOTHERSON', name: 'Samvardhana Motherson', exchange: 'NSE', capCategory: 'mid' },
+  { symbol: 'BDL', name: 'Bharat Dynamics Limited', exchange: 'NSE', capCategory: 'mid' },
+  { symbol: 'TATACOMM', name: 'Tata Communications Ltd.', exchange: 'NSE', capCategory: 'mid' },
+  { symbol: 'YESBANK', name: 'Yes Bank Limited', exchange: 'NSE', capCategory: 'mid' },
+
+  // Small Cap (High Momentum & Popular Retail Stocks)
+  { symbol: 'IRFC', name: 'Indian Railway Finance Corp', exchange: 'NSE', capCategory: 'small' },
+  { symbol: 'RVNL', name: 'Rail Vikas Nigam Limited', exchange: 'NSE', capCategory: 'small' },
+  { symbol: 'MAZDOCK', name: 'Mazagon Dock Shipbuilders', exchange: 'NSE', capCategory: 'small' },
+  { symbol: 'CDSL', name: 'Central Depository Services', exchange: 'NSE', capCategory: 'small' },
+  { symbol: 'BSE', name: 'BSE Limited', exchange: 'NSE', capCategory: 'small' },
+  { symbol: 'ANGELONE', name: 'Angel One Limited', exchange: 'NSE', capCategory: 'small' },
+  { symbol: 'HUDCO', name: 'Housing & Urban Development', exchange: 'NSE', capCategory: 'small' },
+  { symbol: 'IREDA', name: 'Indian Renewable Energy Dev.', exchange: 'NSE', capCategory: 'small' },
+  { symbol: 'OLECTRA', name: 'Olectra Greentech Ltd.', exchange: 'NSE', capCategory: 'small' },
+  { symbol: 'KAYNES', name: 'Kaynes Technology India', exchange: 'NSE', capCategory: 'small' },
+  { symbol: 'MAPMYINDIA', name: 'CE Info Systems (MapmyIndia)', exchange: 'NSE', capCategory: 'small' },
+  { symbol: 'CYIENT', name: 'Cyient Limited', exchange: 'NSE', capCategory: 'small' },
+  { symbol: 'NBCC', name: 'NBCC (India) Limited', exchange: 'NSE', capCategory: 'small' },
+  { symbol: 'RITES', name: 'RITES Limited', exchange: 'NSE', capCategory: 'small' },
 ];
 
-export const INITIAL_STOCKS = ['RELIANCE', 'TCS', 'INFY', 'HDFCBANK', 'ICICIBANK'];
+export const LARGE_CAP_STOCKS = ['RELIANCE', 'TCS', 'HDFCBANK', 'ICICIBANK', 'BHARTIARTL', 'SBIN', 'INFY', 'ITC', 'LT', 'TATAMOTORS'];
+export const MID_CAP_STOCKS = ['ZOMATO', 'BEL', 'TRENT', 'POLYCAB', 'PERSISTENT', 'DIXON', 'SUZLON', 'HAL', 'FEDERALBNK', 'BHEL'];
+export const SMALL_CAP_STOCKS = ['IRFC', 'RVNL', 'MAZDOCK', 'CDSL', 'BSE', 'ANGELONE', 'HUDCO', 'IREDA', 'OLECTRA', 'KAYNES'];
+
+export const INITIAL_STOCKS = [
+  'RELIANCE',
+  'TCS',
+  'HDFCBANK',
+  'ZOMATO',
+  'BEL',
+  'TRENT',
+  'IRFC',
+  'RVNL',
+  'CDSL',
+];
 
 class StockApiService {
   private baseUrl = 'https://api.tejhq.dev/v1';
@@ -58,6 +116,11 @@ class StockApiService {
   public getStockName(symbol: string): string {
     const found = STOCK_DIRECTORY.find((s) => s.symbol.toUpperCase() === symbol.toUpperCase());
     return found ? found.name : symbol.toUpperCase();
+  }
+
+  public getStockCapCategory(symbol: string): 'large' | 'mid' | 'small' | undefined {
+    const found = STOCK_DIRECTORY.find((s) => s.symbol.toUpperCase() === symbol.toUpperCase());
+    return found?.capCategory;
   }
 
   async getQuote(symbolInput: string, exchange: 'NSE' | 'BSE' = 'NSE'): Promise<StockAsset> {
@@ -103,6 +166,7 @@ class StockApiService {
       name: this.getStockName(symbol),
       category: 'stock',
       exchange,
+      capCategory: this.getStockCapCategory(symbol),
       price: currentPrice,
       change,
       changePercent,
@@ -193,15 +257,30 @@ class StockApiService {
     const q = query.trim().toUpperCase();
     if (!q) return [];
 
-    return STOCK_DIRECTORY.filter(
+    const matches: SearchResult[] = STOCK_DIRECTORY.filter(
       (s) => s.symbol.toUpperCase().includes(q) || s.name.toUpperCase().includes(q)
     ).map((s) => ({
       id: `stock:${s.symbol}:${s.exchange}`,
       symbol: s.symbol,
       name: s.name,
-      category: 'stock',
+      category: 'stock' as const,
       exchange: s.exchange,
+      capCategory: s.capCategory,
     }));
+
+    // Universal direct symbol lookup: if user typed a valid ticker not already in results
+    const hasExact = matches.some((m) => m.symbol.toUpperCase() === q);
+    if (!hasExact && /^[A-Z0-9-]{2,14}$/.test(q)) {
+      matches.unshift({
+        id: `stock:${q}:NSE`,
+        symbol: q,
+        name: `${q} · Direct NSE Lookup`,
+        category: 'stock' as const,
+        exchange: 'NSE',
+      });
+    }
+
+    return matches;
   }
 }
 

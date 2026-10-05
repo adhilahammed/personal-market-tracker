@@ -1,5 +1,7 @@
 export type AssetCategory = 'stock' | 'crypto' | 'commodity';
 
+export type MarketCapCategory = 'large' | 'mid' | 'small';
+
 export type TimePeriod = '1W' | '1M' | '6M' | '1Y';
 
 export interface HistoricalPrice {
@@ -23,6 +25,7 @@ export interface BaseAsset {
 export interface StockAsset extends BaseAsset {
   category: 'stock';
   exchange: 'NSE' | 'BSE';
+  capCategory?: MarketCapCategory;
   open: number | null;
   high24h: number | null;
   low24h: number | null;
@@ -65,4 +68,5 @@ export interface SearchResult {
   name: string;
   category: AssetCategory;
   exchange?: string;
+  capCategory?: MarketCapCategory;
 }

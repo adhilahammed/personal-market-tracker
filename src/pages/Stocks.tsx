@@ -1,17 +1,49 @@
 import React, { useState, useMemo } from 'react';
 import { useStockQuotes } from '../hooks/useStocks';
 import { useFavorites } from '../hooks/useFavorites';
-import { INITIAL_STOCKS, stockApi } from '../api/stockApi';
+import {
+  INITIAL_STOCKS,
+  LARGE_CAP_STOCKS,
+  MID_CAP_STOCKS,
+  SMALL_CAP_STOCKS,
+  stockApi,
+} from '../api/stockApi';
 import { AssetCard } from '../components/AssetCard';
 import { SearchBar } from '../components/SearchBar';
-import { SearchResult } from '../types/market';
+import { SearchResult, MarketCapCategory } from '../types/market';
 import { Star, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+type CapFilter = 'all' | MarketCapCategory;
+
+const CAP_TABS: { id: CapFilter; label: string }[] = [
+  { id: 'all', label: 'All' },
+  { id: 'large', label: 'Large Cap' },
+  { id: 'mid', label: 'Mid Cap' },
+  { id: 'small', label: 'Small Cap' },
+];
+
 export const StocksPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeCap, setActiveCap] = useState<CapFilter>('all');
   const navigate = useNavigate();
-  const { data: quotes, isLoading, isError, refetch } = useStockQuotes(INITIAL_STOCKS);
+
+  // Symbols to fetch based on active tab
+  const activeSymbols = useMemo(() => {
+    switch (activeCap) {
+      case 'large':
+        return LARGE_CAP_STOCKS;
+      case 'mid':
+        return MID_CAP_STOCKS;
+      case 'small':
+        return SMALL_CAP_STOCKS;
+      case 'all':
+      default:
+        return INITIAL_STOCKS;
+    }
+  }, [activeCap]);
+
+  const { data: quotes, isLoading, isError, refetch } = useStockQuotes(activeSymbols);
   const { isFavorite, toggleFavorite } = useFavorites();
 
   // Handle Search
@@ -20,10 +52,10 @@ export const StocksPage: React.FC = () => {
     return stockApi.searchStocks(searchQuery);
   }, [searchQuery]);
 
-  // Initial stock assets
-  const initialStockAssets = useMemo(() => {
+  // Active stock assets
+  const currentStockAssets = useMemo(() => {
     if (!quotes) return [];
-    return INITIAL_STOCKS.map((sym) => {
+    return activeSymbols.map((sym) => {
       const id = `stock:${sym}:NSE`;
       return (
         quotes[id] ||
@@ -33,6 +65,7 @@ export const StocksPage: React.FC = () => {
           name: stockApi.getStockName(sym),
           category: 'stock' as const,
           exchange: 'NSE' as const,
+          capCategory: stockApi.getStockCapCategory(sym),
           price: null,
           change: null,
           changePercent: null,
@@ -45,7 +78,32 @@ export const StocksPage: React.FC = () => {
         }
       );
     });
-  }, [quotes]);
+  }, [quotes, activeSymbols]);
+
+  const getCapBadge = (cap?: MarketCapCategory) => {
+    switch (cap) {
+      case 'large':
+        return (
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+            Large Cap
+          </span>
+        );
+      case 'mid':
+        return (
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+            Mid Cap
+          </span>
+        );
+      case 'small':
+        return (
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+            Small Cap
+          </span>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -54,10 +112,33 @@ export const StocksPage: React.FC = () => {
         <SearchBar
           value={searchQuery}
           onChange={setSearchQuery}
-          placeholder="Search stocks (e.g. Reliance, TCS, INFY)..."
+          placeholder="Search stocks (e.g. Zomato, Trent, Suzlon, IRFC)..."
           onClear={() => setSearchQuery('')}
         />
       </div>
+
+      {/* Market Cap Filter Chips (Only show when not actively searching) */}
+      {!searchQuery.trim() && (
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+          {CAP_TABS.map((tab) => {
+            const isActive = activeCap === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveCap(tab.id)}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-150 ${
+                  isActive
+                    ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/20'
+                    : 'bg-card-light dark:bg-card-dark text-slate-600 dark:text-slate-400 border border-border-light dark:border-border-dark hover:border-slate-400 active:scale-95'
+                }`}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* If Searching, show search results */}
       {searchQuery.trim() ? (
@@ -74,22 +155,31 @@ export const StocksPage: React.FC = () => {
             <div className="space-y-2">
               {searchResults.map((res) => {
                 const fav = isFavorite(res.id);
+                const isDirectLookup = res.name.includes('Direct NSE Lookup');
                 return (
                   <div
                     key={res.id}
                     onClick={() => navigate(`/asset/${encodeURIComponent(res.id)}`)}
                     className="flex items-center justify-between p-3.5 rounded-2xl bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark active:scale-[0.99] transition-transform cursor-pointer"
                   >
-                    <div>
-                      <div className="font-semibold text-sm text-slate-900 dark:text-slate-100">
-                        {res.name}
+                    <div className="min-w-0 pr-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-sm text-slate-900 dark:text-slate-100 truncate">
+                          {res.name}
+                        </span>
+                        {getCapBadge(res.capCategory)}
+                        {isDirectLookup && (
+                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+                            Live Lookup
+                          </span>
+                        )}
                       </div>
-                      <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                      <div className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
                         {res.symbol} · {res.exchange || 'NSE'}
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 shrink-0">
                       <button
                         type="button"
                         aria-label={fav ? `Remove ${res.name} from favorites` : `Add ${res.name} to favorites`}
@@ -117,7 +207,13 @@ export const StocksPage: React.FC = () => {
         <div className="space-y-3">
           <div className="flex items-center justify-between px-1">
             <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              Top Indian Stocks (NSE)
+              {activeCap === 'all'
+                ? 'Featured Stocks (Large, Mid & Small)'
+                : activeCap === 'large'
+                ? 'Large Cap Stocks (Nifty 50)'
+                : activeCap === 'mid'
+                ? 'Mid Cap Stocks (High Growth)'
+                : 'Small Cap Stocks (High Momentum)'}
             </h2>
             {isLoading && (
               <span className="text-xs text-blue-500 font-medium animate-pulse">
@@ -140,7 +236,7 @@ export const StocksPage: React.FC = () => {
           )}
 
           <div className="grid grid-cols-1 gap-3">
-            {initialStockAssets.map((asset) => (
+            {currentStockAssets.map((asset) => (
               <AssetCard
                 key={asset.id}
                 asset={asset}

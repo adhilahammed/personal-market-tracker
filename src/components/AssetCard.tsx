@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Star, WifiOff } from 'lucide-react';
-import { MarketAsset } from '../types/market';
+import { MarketAsset, StockAsset } from '../types/market';
 import { PriceChange } from './PriceChange';
 import { formatCurrency } from '../utils/formatters';
 
@@ -24,7 +24,18 @@ export const AssetCard: React.FC<AssetCardProps> = ({
 
   const getSubtitle = () => {
     if (asset.category === 'stock') {
-      return `${asset.symbol} · ${asset.exchange}`;
+      const stock = asset as StockAsset;
+      const capLabel =
+        stock.capCategory === 'large'
+          ? 'Large Cap'
+          : stock.capCategory === 'mid'
+          ? 'Mid Cap'
+          : stock.capCategory === 'small'
+          ? 'Small Cap'
+          : null;
+      return capLabel
+        ? `${asset.symbol} · ${stock.exchange} · ${capLabel}`
+        : `${asset.symbol} · ${stock.exchange}`;
     }
     if (asset.category === 'crypto') {
       return `${asset.symbol} · Crypto`;

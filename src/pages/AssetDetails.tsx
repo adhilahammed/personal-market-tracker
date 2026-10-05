@@ -159,7 +159,7 @@ export const AssetDetailsPage: React.FC = () => {
           )}
         </div>
         <div className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mt-0.5">
-          {isStock && `${(currentAsset as StockAsset)?.symbol || symbolOrId} · ${(currentAsset as StockAsset)?.exchange || 'NSE'}`}
+          {isStock && `${(currentAsset as StockAsset)?.symbol || symbolOrId} · ${(currentAsset as StockAsset)?.exchange || 'NSE'}${(currentAsset as StockAsset)?.capCategory ? ` · ${(currentAsset as StockAsset).capCategory?.toUpperCase()} CAP` : ''}`}
           {isCrypto && `${(currentAsset as CryptoAsset)?.symbol || symbolOrId} · Crypto`}
           {isCommodity && `${(currentAsset as CommodityAsset)?.symbol || symbolOrId} · ${(currentAsset as CommodityAsset)?.unit || 'Precious Metal'}`}
         </div>
@@ -215,7 +215,20 @@ export const AssetDetailsPage: React.FC = () => {
               <StatItem label="Day Low" value={formatCurrency((currentAsset as StockAsset)?.low24h, '₹')} />
               <StatItem label="Prev. Close" value={formatCurrency((currentAsset as StockAsset)?.previousClose, '₹')} />
               <StatItem label="Volume" value={formatCompactNumber((currentAsset as StockAsset)?.volume, '₹')} />
+              <StatItem
+                label="Segment"
+                value={
+                  (currentAsset as StockAsset)?.capCategory === 'large'
+                    ? 'Large Cap (Nifty 50)'
+                    : (currentAsset as StockAsset)?.capCategory === 'mid'
+                    ? 'Mid Cap'
+                    : (currentAsset as StockAsset)?.capCategory === 'small'
+                    ? 'Small Cap'
+                    : 'NSE Listed'
+                }
+              />
               <StatItem label="Exchange" value={(currentAsset as StockAsset)?.exchange || 'NSE'} />
+              <StatItem label="Currency" value="INR (₹)" />
             </>
           )}
 
