@@ -5,6 +5,7 @@ const TROY_OZ_TO_GRAMS = 31.1034768;
 export const INITIAL_COMMODITIES = [
   'commodity:GOLD_8G_22K:INR',
   'commodity:GOLD_8G_24K:INR',
+  'commodity:USD:INR',
   'commodity:GOLD_1G_22K:INR',
   'commodity:GOLD_10G:INR',
   'commodity:GOLD_1G:INR',
@@ -16,7 +17,7 @@ class CommodityApiService {
   private coingeckoUrl = 'https://api.coingecko.com/api/v3';
 
   async getAllCommodities(): Promise<Record<string, CommodityAsset>> {
-    const url = `${this.coingeckoUrl}/coins/markets?vs_currency=inr&ids=pax-gold,kinesis-silver&order=market_cap_desc&sparkline=false&price_change_percentage=24h`;
+    const url = `${this.coingeckoUrl}/coins/markets?vs_currency=inr&ids=pax-gold,kinesis-silver,tether&order=market_cap_desc&sparkline=false&price_change_percentage=24h`;
 
     const response = await fetch(url, {
       headers: { Accept: 'application/json' },
@@ -29,9 +30,10 @@ class CommodityApiService {
     const data = await response.json();
     const paxGold = data.find((d: { id: string }) => d.id === 'pax-gold');
     const silver = data.find((d: { id: string }) => d.id === 'kinesis-silver');
+    const tether = data.find((d: { id: string }) => d.id === 'tether');
 
-    if (!paxGold && !silver) {
-      throw new Error('Unable to retrieve gold and silver prices');
+    if (!paxGold && !silver && !tether) {
+      throw new Error('Unable to retrieve commodity prices');
     }
 
     const results: Record<string, CommodityAsset> = {};
@@ -139,7 +141,30 @@ class CommodityApiService {
       };
     }
 
-    // 2. Silver calculations
+    // 2. US Dollar (USD / INR Forex Rate)
+    if (tether && tether.current_price) {
+      const usdPrice = tether.current_price;
+      const changePct = tether.price_change_percentage_24h ?? null;
+      const changeAmount = tether.price_change_24h ?? null;
+      const lastUpdated = tether.last_updated || new Date().toISOString();
+
+      results['commodity:USD:INR'] = {
+        id: 'commodity:USD:INR',
+        symbol: 'USD',
+        name: 'US Dollar (USD)',
+        category: 'commodity',
+        unit: '1 USD ($)',
+        price: Number(usdPrice.toFixed(2)),
+        change: changeAmount !== null ? Number(changeAmount.toFixed(2)) : null,
+        changePercent: changePct !== null ? Number(changePct.toFixed(2)) : null,
+        high24h: tether.high_24h ? Number(tether.high_24h.toFixed(2)) : null,
+        low24h: tether.low_24h ? Number(tether.low_24h.toFixed(2)) : null,
+        previousClose: changeAmount !== null ? Number((usdPrice - changeAmount).toFixed(2)) : null,
+        lastUpdated,
+      };
+    }
+
+    // 3. Silver calculations
     if (silver && silver.current_price) {
       const silverPricePerOz = silver.current_price;
       const silverPricePerGram = silverPricePerOz / TROY_OZ_TO_GRAMS;
@@ -194,6 +219,9 @@ class CommodityApiService {
     if (found) return found;
 
     // Fallbacks
+    if (id.toLowerCase().includes('usd')) {
+      return all['commodity:USD:INR'] || Object.values(all)[0];
+    }
     if (id.toLowerCase().includes('silver')) {
       return all['commodity:SILVER_1KG:INR'] || Object.values(all)[0];
     }
@@ -205,11 +233,14 @@ class CommodityApiService {
   }
 
   async getHistoricalData(id: string, period: TimePeriod): Promise<HistoricalPrice[]> {
+    const isUsd = id.toLowerCase().includes('usd');
     const isSilver = id.toLowerCase().includes('silver');
-    const coinId = isSilver ? 'kinesis-silver' : 'pax-gold';
+    const coinId = isUsd ? 'tether' : isSilver ? 'kinesis-silver' : 'pax-gold';
 
     let multiplier = 1 / TROY_OZ_TO_GRAMS;
-    if (id.includes('GOLD_8G_22K')) {
+    if (isUsd) {
+      multiplier = 1;
+    } else if (id.includes('GOLD_8G_22K')) {
       multiplier = (1 / TROY_OZ_TO_GRAMS) * 8 * (22 / 24);
     } else if (id.includes('GOLD_8G_24K') || id.includes('8G')) {
       multiplier = (1 / TROY_OZ_TO_GRAMS) * 8;

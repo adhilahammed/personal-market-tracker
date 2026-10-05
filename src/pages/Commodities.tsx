@@ -12,6 +12,7 @@ export const CommoditiesPage: React.FC = () => {
     if (!quotes) return [];
     return INITIAL_COMMODITIES.map((id) => {
       const getCommodityName = (commodityId: string) => {
+        if (commodityId.includes('USD')) return 'US Dollar (USD)';
         if (commodityId.includes('GOLD_8G_22K')) return 'Gold 22K (8g / 1 Pavan)';
         if (commodityId.includes('GOLD_8G_24K')) return 'Gold 24K (8g)';
         if (commodityId.includes('GOLD_1G_22K')) return 'Gold 22K (1g)';
@@ -22,6 +23,7 @@ export const CommoditiesPage: React.FC = () => {
       };
 
       const getCommodityUnit = (commodityId: string) => {
+        if (commodityId.includes('USD')) return '1 USD ($)';
         if (commodityId.includes('GOLD_8G_22K')) return '8 grams · 1 Pavan (22K)';
         if (commodityId.includes('GOLD_8G_24K')) return '8 grams (24K)';
         if (commodityId.includes('GOLD_1G_22K')) return '1 gram (22K)';
@@ -33,7 +35,9 @@ export const CommoditiesPage: React.FC = () => {
       return (
         quotes[id] || {
           id,
-          symbol: id.includes('GOLD_8G')
+          symbol: id.includes('USD')
+            ? 'USD'
+            : id.includes('GOLD_8G')
             ? 'GOLD 8G'
             : id.includes('GOLD')
             ? 'GOLD'
@@ -55,11 +59,11 @@ export const CommoditiesPage: React.FC = () => {
       {/* Header Info */}
       <div className="flex items-center justify-between px-1">
         <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-          Precious Metals (INR)
+          Commodities & Currencies (INR)
         </h2>
         {isLoading && (
           <span className="text-xs text-blue-500 font-medium animate-pulse">
-            Loading live commodity rates...
+            Loading live rates...
           </span>
         )}
       </div>
