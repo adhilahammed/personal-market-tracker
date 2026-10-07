@@ -110,8 +110,6 @@ export const INITIAL_STOCKS = [
   'CDSL',
 ];
 
-const PROXY_BASE_URL = (import.meta.env.VITE_STOCK_PROXY_URL || '').replace(/\/+$/, '');
-
 class StockApiService {
   private baseUrl = 'https://api.tejhq.dev/v1';
 
@@ -129,10 +127,8 @@ class StockApiService {
     const symbol = symbolInput.toUpperCase().replace(/\.(NS|BO)$/i, '');
     const ex = exchange.toLowerCase();
 
-    // 1. Try Live proxy (Vercel serverless /api/stock or external worker)
-    const proxyEndpoint = PROXY_BASE_URL
-      ? `${PROXY_BASE_URL}/stock/${encodeURIComponent(symbol)}`
-      : `/api/stock?symbol=${encodeURIComponent(symbol)}`;
+    // 1. Try Vercel serverless live price endpoint
+    const proxyEndpoint = `/api/stock?symbol=${encodeURIComponent(symbol)}`;
 
     try {
       const proxyRes = await fetch(proxyEndpoint);
