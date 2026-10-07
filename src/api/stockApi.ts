@@ -110,6 +110,8 @@ export const INITIAL_STOCKS = [
   'CDSL',
 ];
 
+const PROXY_BASE_URL = (import.meta.env.VITE_STOCK_PROXY_URL || '').replace(/\/+$/, '');
+
 class StockApiService {
   private baseUrl = 'https://api.tejhq.dev/v1';
 
@@ -127,6 +129,41 @@ class StockApiService {
     const symbol = symbolInput.toUpperCase().replace(/\.(NS|BO)$/i, '');
     const ex = exchange.toLowerCase();
 
+    // 1. Try Live proxy (Vercel serverless /api/stock or external worker)
+    const proxyEndpoint = PROXY_BASE_URL
+      ? `${PROXY_BASE_URL}/stock/${encodeURIComponent(symbol)}`
+      : `/api/stock?symbol=${encodeURIComponent(symbol)}`;
+
+    try {
+      const proxyRes = await fetch(proxyEndpoint);
+      if (proxyRes.ok) {
+        const liveData = await proxyRes.json();
+        if (liveData && liveData.price !== undefined && !liveData.error) {
+          return {
+            id: `stock:${symbol}:${exchange}`,
+            symbol,
+            name: this.getStockName(symbol),
+            category: 'stock',
+            exchange,
+            capCategory: this.getStockCapCategory(symbol),
+            price: liveData.price,
+            change: liveData.change,
+            changePercent: liveData.changePercent,
+            open: liveData.open,
+            high24h: liveData.high,
+            low24h: liveData.low,
+            previousClose: liveData.prevClose,
+            volume: liveData.volume,
+            trades: null,
+            lastUpdated: new Date(liveData.timestamp || Date.now()).toISOString(),
+          };
+        }
+      }
+    } catch {
+      // Ignore and fallback gracefully to TejHQ daily candle
+    }
+
+    // 2. Default fallback: fetch from TejHQ daily OHLCV
     const url = `${this.baseUrl}/ohlcv/${ex}/${encodeURIComponent(symbol)}`;
 
     const response = await fetch(url, {
