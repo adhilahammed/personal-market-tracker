@@ -34,10 +34,11 @@ export const CommoditiesPage: React.FC = () => {
         if (commodityId.includes('KERALA_GOLD_1G_22K')) return '22K';
         if (commodityId.includes('KERALA_GOLD_8G_24K')) return '24K Pure';
         if (commodityId.includes('USD')) return '1 USD ($)';
-        if (commodityId.includes('GOLD_8G_22K')) return '8g · 22K (Bullion Spot Trading)';
-        if (commodityId.includes('GOLD_8G_24K')) return '8g · 24K (Bullion Spot Trading)';
-        if (commodityId.includes('GOLD_1G_22K')) return '1g · 22K (Bullion Spot Trading)';
-        if (commodityId.includes('GOLD_10G')) return '10g · 24K (Bullion Spot Trading)';
+        if (commodityId.includes('GOLD_8G_22K')) return '22K (Spot)';
+        if (commodityId.includes('GOLD_8G_24K')) return '24K (Spot)';
+        if (commodityId.includes('GOLD_1G_22K')) return '22K (Spot)';
+        if (commodityId.includes('GOLD_10G')) return '24K (Spot)';
+        if (commodityId.includes('GOLD_1G')) return '24K (Spot)';
         if (commodityId.includes('SILVER_1KG')) return '1 kg';
         return '1 gram';
       };

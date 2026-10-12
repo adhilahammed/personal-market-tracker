@@ -116,5 +116,7 @@ export function getStoredTheme(): 'dark' | 'light' {
 export function saveStoredTheme(theme: 'dark' | 'light'): void {
   try {
     localStorage.setItem(THEME_KEY, theme);
-  } catch {}
+  } catch (e) {
+    console.warn('Failed to save theme to localStorage:', e);
+  }
 }

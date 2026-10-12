@@ -55,11 +55,21 @@ export const FavoritesPage: React.FC = () => {
         if (found) return found;
 
         // Fallback placeholder while loading or if not fetched
+        const getFallbackUnit = (favId: string) => {
+          if (favId.includes('8G')) return '22K';
+          if (favId.includes('1G')) return '22K';
+          if (favId.includes('10G')) return '24K';
+          if (favId.includes('USD')) return '1 USD ($)';
+          if (favId.includes('1KG')) return '1 kg';
+          return '1 gram';
+        };
+
         return {
           id: fav.id,
           name: fav.name,
           symbol: fav.symbol,
           category: fav.category,
+          unit: fav.category === 'commodity' ? getFallbackUnit(fav.id) : '',
           price: null,
           change: null,
           changePercent: null,

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Star, WifiOff } from 'lucide-react';
-import { MarketAsset, StockAsset } from '../types/market';
+import { MarketAsset, StockAsset, CommodityAsset } from '../types/market';
 import { PriceChange } from './PriceChange';
 import { formatCurrency } from '../utils/formatters';
 
@@ -38,15 +38,16 @@ export const AssetCard: React.FC<AssetCardProps> = ({
         : `${asset.symbol} · ${stock.exchange}`;
     }
     if (asset.category === 'crypto') {
-      return `${asset.symbol} · Crypto`;
+      return `${asset.symbol || ''} · Crypto`;
     }
-    let unit = asset.unit;
-    if (asset.symbol.includes('8G') && unit.includes('8 grams')) {
+    const symbol = asset.symbol || '';
+    let unit = (asset as CommodityAsset)?.unit || '';
+    if (symbol.includes('8G') && unit.includes('8 grams')) {
       unit = unit.replace(/8\s*grams?\s*(·\s*)?/i, '').trim();
-    } else if (asset.symbol.includes('1G') && unit.includes('1 gram')) {
+    } else if (symbol.includes('1G') && unit.includes('1 gram')) {
       unit = unit.replace(/1\s*grams?\s*(·\s*)?/i, '').trim();
     }
-    return unit ? `${asset.symbol} · ${unit}` : asset.symbol;
+    return unit ? `${symbol} · ${unit}` : symbol;
   };
 
   const currency = asset.category === 'crypto' ? '$' : '₹';
@@ -63,7 +64,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({
         }
       }}
       className="group relative flex flex-col justify-between p-4 rounded-2xl bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark shadow-sm hover:border-blue-500/40 active:scale-[0.98] transition-all cursor-pointer select-none"
-      id={`asset-card-${asset.symbol.toLowerCase()}`}
+      id={`asset-card-${asset.symbol ? asset.symbol.toLowerCase() : 'item'}`}
     >
       {/* Header: Name, Subtitle and Star */}
       <div className="flex items-start justify-between gap-2">
@@ -72,12 +73,12 @@ export const AssetCard: React.FC<AssetCardProps> = ({
             <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 truncate tracking-tight">
               {asset.name}
             </h2>
-            {asset.id.includes('KERALA') && (
+            {asset.id?.includes('KERALA') && (
               <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20 shrink-0">
                 Market Rate
               </span>
             )}
-            {asset.category === 'commodity' && !asset.id.includes('KERALA') && asset.id.includes('GOLD') && (
+            {asset.category === 'commodity' && !asset.id?.includes('KERALA') && asset.id?.includes('GOLD') && (
               <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-500/15 text-sky-600 dark:text-sky-400 border border-sky-500/20 shrink-0">
                 Spot Trading
               </span>
