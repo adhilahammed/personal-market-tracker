@@ -161,7 +161,7 @@ export const AssetDetailsPage: React.FC = () => {
         <div className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mt-0.5">
           {isStock && `${(currentAsset as StockAsset)?.symbol || symbolOrId} · ${(currentAsset as StockAsset)?.exchange || 'NSE'}${(currentAsset as StockAsset)?.capCategory ? ` · ${(currentAsset as StockAsset).capCategory?.toUpperCase()} CAP` : ''}`}
           {isCrypto && `${(currentAsset as CryptoAsset)?.symbol || symbolOrId} · Crypto`}
-          {isCommodity && `${(currentAsset as CommodityAsset)?.symbol || symbolOrId} · ${(currentAsset as CommodityAsset)?.unit || 'Precious Metal'}`}
+          {isCommodity && `${(currentAsset as CommodityAsset)?.symbol || symbolOrId} · ${(currentAsset as CommodityAsset)?.unit || 'Precious Metal'}${decodedId.includes('KERALA') ? ' · Kerala Retail Market' : ''}`}
         </div>
       </div>
 
@@ -254,7 +254,31 @@ export const AssetDetailsPage: React.FC = () => {
               <StatItem label="Day High" value={formatCurrency((currentAsset as CommodityAsset)?.high24h, '₹')} />
               <StatItem label="Day Low" value={formatCurrency((currentAsset as CommodityAsset)?.low24h, '₹')} />
               <StatItem label="Prev. Close" value={formatCurrency((currentAsset as CommodityAsset)?.previousClose, '₹')} />
-              <StatItem label="Benchmark" value="LBMA / Physical Spot" />
+              <StatItem
+                label="Benchmark"
+                value={
+                  decodedId.includes('KERALA')
+                    ? 'AKGSMA Kerala Benchmark'
+                    : 'LBMA / Bullion Spot'
+                }
+              />
+              <StatItem
+                label="Market Type"
+                value={
+                  decodedId.includes('KERALA')
+                    ? 'Kerala Retail Jewellery'
+                    : 'Spot Bullion Trading'
+                }
+              />
+              {decodedId.includes('KERALA') && (
+                <>
+                  <StatItem
+                    label="Purity Grade"
+                    value={decodedId.includes('22K') ? '22K (916 Hallmark)' : '24K (999 Pure)'}
+                  />
+                  <StatItem label="Region" value="Kerala, India" />
+                </>
+              )}
               <StatItem label="Currency" value="INR (₹)" />
             </>
           )}

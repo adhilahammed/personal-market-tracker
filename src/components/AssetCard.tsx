@@ -66,6 +66,16 @@ export const AssetCard: React.FC<AssetCardProps> = ({
             <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 truncate tracking-tight">
               {asset.name}
             </h2>
+            {asset.id.includes('KERALA') && (
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20 shrink-0">
+                Kerala Market
+              </span>
+            )}
+            {asset.category === 'commodity' && !asset.id.includes('KERALA') && asset.id.includes('GOLD') && (
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-500/15 text-sky-600 dark:text-sky-400 border border-sky-500/20 shrink-0">
+                Spot Trading
+              </span>
+            )}
             {asset.isOfflineCached && (
               <span
                 title="Cached data (offline)"
