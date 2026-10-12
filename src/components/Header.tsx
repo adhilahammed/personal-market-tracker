@@ -1,6 +1,7 @@
 import React from 'react';
-import { RotateCw, Sun, Moon } from 'lucide-react';
+import { RotateCw, Sun, Moon, Download } from 'lucide-react';
 import { formatTimeAgo } from '../utils/formatters';
+import { useFavorites } from '../hooks/useFavorites';
 
 interface HeaderProps {
   title?: string;
@@ -21,6 +22,22 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleTheme,
   isOffline = false,
 }) => {
+  const { favorites } = useFavorites();
+
+  const handleDownloadFavorites = () => {
+    const names = favorites.map((f) => f.name).filter(Boolean);
+    const content = names.join('\n');
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'my-favourites.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <header className="sticky top-0 z-40 w-full backdrop-blur-xl bg-background-light/85 dark:bg-background-dark/85 border-b border-border-light dark:border-border-dark pt-[max(0.75rem,env(safe-area-inset-top))] px-4 pb-3 transition-colors">
       <div className="flex items-center justify-between max-w-md mx-auto">
@@ -43,8 +60,20 @@ export const Header: React.FC<HeaderProps> = ({
           </span>
         </div>
 
-        {/* Action Buttons: Theme Toggle & Manual Refresh */}
+        {/* Action Buttons: Download Favorites, Theme Toggle & Manual Refresh */}
         <div className="flex items-center gap-1">
+          {/* Download Favorites Button (44x44 min touch target) */}
+          <button
+            type="button"
+            onClick={handleDownloadFavorites}
+            aria-label="Download favorites list"
+            title="Download favorites"
+            className="flex items-center justify-center w-11 h-11 rounded-full text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-500/10 active:scale-95 transition-all"
+            id="header-download-btn"
+          >
+            <Download size={20} className="stroke-[2]" />
+          </button>
+
           {/* Theme Toggle (44x44 min touch target) */}
           <button
             type="button"
