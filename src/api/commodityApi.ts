@@ -253,13 +253,13 @@ class CommodityApiService {
     const change22k1g = changePct !== null ? (keralaData.rate22kPerGram * changePct) / 100 : null;
     const change24k8g = changePct !== null ? (keralaData.rate24k8g * changePct) / 100 : null;
 
-    // Kerala Gold 22K 8g (1 Pavan / Sovereign) - Most critical retail benchmark in Kerala
+    // Retail Gold Market Rates (22K / 916 Jewellery Benchmark)
     results['commodity:KERALA_GOLD_8G_22K:INR'] = {
       id: 'commodity:KERALA_GOLD_8G_22K:INR',
-      symbol: 'KERALA GOLD 8G',
-      name: 'Kerala Gold 22K (8g / 1 Pavan)',
+      symbol: 'GOLD 8G',
+      name: 'Gold 22K (8g)',
       category: 'commodity',
-      unit: '8 grams · 1 Pavan (Kerala Market)',
+      unit: '22K',
       price: keralaData.rate22k8g,
       change: change22k8g !== null ? Number(change22k8g.toFixed(2)) : null,
       changePercent: changePct !== null ? Number(changePct.toFixed(2)) : null,
@@ -269,13 +269,13 @@ class CommodityApiService {
       lastUpdated: keralaData.lastUpdated,
     };
 
-    // Kerala Gold 22K 1g
+    // Retail Gold 22K 1g
     results['commodity:KERALA_GOLD_1G_22K:INR'] = {
       id: 'commodity:KERALA_GOLD_1G_22K:INR',
-      symbol: 'KERALA GOLD 1G',
-      name: 'Kerala Gold 22K (1g)',
+      symbol: 'GOLD 1G',
+      name: 'Gold 22K (1g)',
       category: 'commodity',
-      unit: '1 gram · 22K (Kerala Market)',
+      unit: '22K',
       price: keralaData.rate22kPerGram,
       change: change22k1g !== null ? Number(change22k1g.toFixed(2)) : null,
       changePercent: changePct !== null ? Number(changePct.toFixed(2)) : null,
@@ -285,13 +285,13 @@ class CommodityApiService {
       lastUpdated: keralaData.lastUpdated,
     };
 
-    // Kerala Gold 24K 8g
+    // Retail Gold 24K 8g
     results['commodity:KERALA_GOLD_8G_24K:INR'] = {
       id: 'commodity:KERALA_GOLD_8G_24K:INR',
-      symbol: 'KERALA GOLD 24K (8g)',
-      name: 'Kerala Gold 24K (8g)',
+      symbol: 'GOLD 8G (24K)',
+      name: 'Gold 24K (8g)',
       category: 'commodity',
-      unit: '8 grams · 24K Pure (Kerala Market)',
+      unit: '24K Pure',
       price: keralaData.rate24k8g,
       change: change24k8g !== null ? Number(change24k8g.toFixed(2)) : null,
       changePercent: changePct !== null ? Number(changePct.toFixed(2)) : null,

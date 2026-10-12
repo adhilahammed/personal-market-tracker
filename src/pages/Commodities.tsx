@@ -5,7 +5,7 @@ import { AssetCard } from '../components/AssetCard';
 import { INITIAL_COMMODITIES } from '../api/commodityApi';
 import { Sparkles } from 'lucide-react';
 
-type CommodityFilter = 'all' | 'kerala' | 'spot' | 'forex';
+type CommodityFilter = 'all' | 'market' | 'spot' | 'forex';
 
 export const CommoditiesPage: React.FC = () => {
   const { data: quotes, isLoading, isError, refetch } = useCommodityQuotes();
@@ -16,9 +16,9 @@ export const CommoditiesPage: React.FC = () => {
     if (!quotes) return [];
     return INITIAL_COMMODITIES.map((id) => {
       const getCommodityName = (commodityId: string) => {
-        if (commodityId.includes('KERALA_GOLD_8G_22K')) return 'Kerala Gold 22K (8g / 1 Pavan)';
-        if (commodityId.includes('KERALA_GOLD_1G_22K')) return 'Kerala Gold 22K (1g)';
-        if (commodityId.includes('KERALA_GOLD_8G_24K')) return 'Kerala Gold 24K (8g)';
+        if (commodityId.includes('KERALA_GOLD_8G_22K')) return 'Gold 22K (8g)';
+        if (commodityId.includes('KERALA_GOLD_1G_22K')) return 'Gold 22K (1g)';
+        if (commodityId.includes('KERALA_GOLD_8G_24K')) return 'Gold 24K (8g)';
         if (commodityId.includes('USD')) return 'US Dollar (USD)';
         if (commodityId.includes('GOLD_8G_22K')) return 'Gold Spot 22K (8g)';
         if (commodityId.includes('GOLD_8G_24K')) return 'Gold Spot 24K (8g)';
@@ -30,9 +30,9 @@ export const CommoditiesPage: React.FC = () => {
       };
 
       const getCommodityUnit = (commodityId: string) => {
-        if (commodityId.includes('KERALA_GOLD_8G_22K')) return '8 grams · 1 Pavan (Kerala Market)';
-        if (commodityId.includes('KERALA_GOLD_1G_22K')) return '1 gram · 22K (Kerala Market)';
-        if (commodityId.includes('KERALA_GOLD_8G_24K')) return '8 grams · 24K (Kerala Market)';
+        if (commodityId.includes('KERALA_GOLD_8G_22K')) return '22K';
+        if (commodityId.includes('KERALA_GOLD_1G_22K')) return '22K';
+        if (commodityId.includes('KERALA_GOLD_8G_24K')) return '24K Pure';
         if (commodityId.includes('USD')) return '1 USD ($)';
         if (commodityId.includes('GOLD_8G_22K')) return '8g · 22K (Bullion Spot Trading)';
         if (commodityId.includes('GOLD_8G_24K')) return '8g · 24K (Bullion Spot Trading)';
@@ -45,8 +45,8 @@ export const CommoditiesPage: React.FC = () => {
       return (
         quotes[id] || {
           id,
-          symbol: id.includes('KERALA')
-            ? 'KERALA GOLD'
+          symbol: id.includes('22K')
+            ? 'GOLD 22K'
             : id.includes('USD')
             ? 'USD'
             : id.includes('GOLD_8G')
@@ -67,7 +67,7 @@ export const CommoditiesPage: React.FC = () => {
   }, [quotes]);
 
   const filteredAssets = useMemo(() => {
-    if (filter === 'kerala') {
+    if (filter === 'market') {
       return commodityAssets.filter((a) => a.id.includes('KERALA'));
     }
     if (filter === 'spot') {
@@ -79,14 +79,14 @@ export const CommoditiesPage: React.FC = () => {
     return commodityAssets;
   }, [commodityAssets, filter]);
 
-  const keralaHighlightAsset = useMemo(() => {
+  const marketHighlightAsset = useMemo(() => {
     return commodityAssets.find((a) => a.id === 'commodity:KERALA_GOLD_8G_22K:INR');
   }, [commodityAssets]);
 
   return (
     <div className="space-y-4">
-      {/* Featured Kerala Gold Highlight Banner */}
-      {keralaHighlightAsset && keralaHighlightAsset.price && (
+      {/* Featured Market Gold Highlight Banner */}
+      {marketHighlightAsset && marketHighlightAsset.price && (
         <div className="relative overflow-hidden p-4 rounded-2xl bg-gradient-to-br from-amber-500/15 via-yellow-500/10 to-amber-600/5 border border-amber-500/30 shadow-sm">
           <div className="flex items-center justify-between gap-2 mb-2">
             <div className="flex items-center gap-1.5">
@@ -94,21 +94,21 @@ export const CommoditiesPage: React.FC = () => {
                 <Sparkles size={14} />
               </span>
               <span className="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">
-                Kerala Gold Market (AKGSMA Benchmark)
+                Gold Market Benchmark (22K)
               </span>
             </div>
             <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300">
-              Live Kerala Rate
+              Live Retail Rate
             </span>
           </div>
 
           <div className="flex items-baseline justify-between mt-1">
             <div>
               <div className="text-xs text-slate-600 dark:text-slate-300 font-medium">
-                22K 8g (1 Pavan / Sovereign)
+                22K (8g)
               </div>
               <div className="text-2xl sm:text-3xl font-extrabold font-mono text-slate-900 dark:text-white mt-0.5">
-                ₹{keralaHighlightAsset.price.toLocaleString('en-IN')}
+                ₹{marketHighlightAsset.price.toLocaleString('en-IN')}
               </div>
             </div>
 
@@ -117,12 +117,12 @@ export const CommoditiesPage: React.FC = () => {
                 22K 1 Gram
               </div>
               <div className="text-lg font-bold font-mono text-slate-800 dark:text-slate-200">
-                ₹{((keralaHighlightAsset.price) / 8).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                ₹{((marketHighlightAsset.price) / 8).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
               </div>
             </div>
           </div>
           <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-2 flex items-center justify-between">
-            <span>Official retail jewellery benchmark in Kerala</span>
+            <span>Standard retail jewellery benchmark (22K 916)</span>
             <span>Excl. GST & making charges</span>
           </div>
         </div>
@@ -143,14 +143,14 @@ export const CommoditiesPage: React.FC = () => {
         </button>
         <button
           type="button"
-          onClick={() => setFilter('kerala')}
+          onClick={() => setFilter('market')}
           className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-            filter === 'kerala'
+            filter === 'market'
               ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
               : 'bg-card-light dark:bg-card-dark text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-border-light dark:border-border-dark'
           }`}
         >
-          <span>Kerala Market (22K)</span>
+          <span>Market Rate (22K)</span>
         </button>
         <button
           type="button"
@@ -179,8 +179,8 @@ export const CommoditiesPage: React.FC = () => {
       {/* Header Info */}
       <div className="flex items-center justify-between px-1">
         <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-          {filter === 'kerala'
-            ? 'Kerala Retail Market Rates (22K / 24K)'
+          {filter === 'market'
+            ? 'Retail Market Rates (22K / 24K)'
             : filter === 'spot'
             ? 'Spot & Bullion Trading Rates'
             : filter === 'forex'

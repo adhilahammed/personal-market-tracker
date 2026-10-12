@@ -40,7 +40,13 @@ export const AssetCard: React.FC<AssetCardProps> = ({
     if (asset.category === 'crypto') {
       return `${asset.symbol} · Crypto`;
     }
-    return `${asset.symbol} · ${asset.unit}`;
+    let unit = asset.unit;
+    if (asset.symbol.includes('8G') && unit.includes('8 grams')) {
+      unit = unit.replace(/8\s*grams?\s*(·\s*)?/i, '').trim();
+    } else if (asset.symbol.includes('1G') && unit.includes('1 gram')) {
+      unit = unit.replace(/1\s*grams?\s*(·\s*)?/i, '').trim();
+    }
+    return unit ? `${asset.symbol} · ${unit}` : asset.symbol;
   };
 
   const currency = asset.category === 'crypto' ? '$' : '₹';
@@ -68,7 +74,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({
             </h2>
             {asset.id.includes('KERALA') && (
               <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20 shrink-0">
-                Kerala Market
+                Market Rate
               </span>
             )}
             {asset.category === 'commodity' && !asset.id.includes('KERALA') && asset.id.includes('GOLD') && (
