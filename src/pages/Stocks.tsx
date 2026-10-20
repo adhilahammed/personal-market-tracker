@@ -6,18 +6,20 @@ import {
   LARGE_CAP_STOCKS,
   MID_CAP_STOCKS,
   SMALL_CAP_STOCKS,
+  REIT_INVIT_STOCKS,
   stockApi,
 } from '../api/stockApi';
 import { AssetCard } from '../components/AssetCard';
 import { SearchBar } from '../components/SearchBar';
 import { SearchResult, MarketCapCategory } from '../types/market';
-import { Star, ArrowRight } from 'lucide-react';
+import { Star, ArrowRight, Coins } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-type CapFilter = 'all' | MarketCapCategory;
+type StockFilter = 'all' | 'reits-invits' | MarketCapCategory;
 
-const CAP_TABS: { id: CapFilter; label: string }[] = [
+const CAP_TABS: { id: StockFilter; label: string }[] = [
   { id: 'all', label: 'All' },
+  { id: 'reits-invits', label: 'REITs & InvITs 💰' },
   { id: 'large', label: 'Large Cap' },
   { id: 'mid', label: 'Mid Cap' },
   { id: 'small', label: 'Small Cap' },
@@ -25,12 +27,14 @@ const CAP_TABS: { id: CapFilter; label: string }[] = [
 
 export const StocksPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeCap, setActiveCap] = useState<CapFilter>('all');
+  const [activeCap, setActiveCap] = useState<StockFilter>('all');
   const navigate = useNavigate();
 
   // Symbols to fetch based on active tab
   const activeSymbols = useMemo(() => {
     switch (activeCap) {
+      case 'reits-invits':
+        return REIT_INVIT_STOCKS;
       case 'large':
         return LARGE_CAP_STOCKS;
       case 'mid':
@@ -66,6 +70,8 @@ export const StocksPage: React.FC = () => {
           category: 'stock' as const,
           exchange: 'NSE' as const,
           capCategory: stockApi.getStockCapCategory(sym),
+          subType: stockApi.getStockSubType(sym),
+          dividendFrequency: stockApi.getStockDividendFrequency(sym),
           price: null,
           change: null,
           changePercent: null,
@@ -79,6 +85,34 @@ export const StocksPage: React.FC = () => {
       );
     });
   }, [quotes, activeSymbols]);
+
+  const getSubtypeBadge = (res: SearchResult) => {
+    if (res.subType === 'reit') {
+      return (
+        <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+          <Coins size={10} className="stroke-[2.5]" />
+          REIT · Quarterly Payout
+        </span>
+      );
+    }
+    if (res.subType === 'invit') {
+      return (
+        <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20">
+          <Coins size={10} className="stroke-[2.5]" />
+          InvIT · Quarterly Payout
+        </span>
+      );
+    }
+    if (res.dividendFrequency === 'Quarterly') {
+      return (
+        <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+          <Coins size={10} className="stroke-[2.5]" />
+          Quarterly Dividend
+        </span>
+      );
+    }
+    return getCapBadge(res.capCategory);
+  };
 
   const getCapBadge = (cap?: MarketCapCategory) => {
     switch (cap) {
@@ -167,7 +201,7 @@ export const StocksPage: React.FC = () => {
                         <span className="font-semibold text-sm text-slate-900 dark:text-slate-100 truncate">
                           {res.name}
                         </span>
-                        {getCapBadge(res.capCategory)}
+                        {getSubtypeBadge(res)}
                         {isDirectLookup && (
                           <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
                             Live Lookup
@@ -209,6 +243,8 @@ export const StocksPage: React.FC = () => {
             <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               {activeCap === 'all'
                 ? 'Featured Stocks (Large, Mid & Small)'
+                : activeCap === 'reits-invits'
+                ? 'REITs & InvITs (Quarterly Distributions)'
                 : activeCap === 'large'
                 ? 'Large Cap Stocks (Nifty 50)'
                 : activeCap === 'mid'

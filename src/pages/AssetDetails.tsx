@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Star, Clock, WifiOff } from 'lucide-react';
+import { ArrowLeft, Star, Clock, WifiOff, Coins } from 'lucide-react';
 import { useFavorites } from '../hooks/useFavorites';
 import { useStockQuote, useStockHistory } from '../hooks/useStocks';
 import { useCryptoQuote, useCryptoHistory } from '../hooks/useCrypto';
@@ -145,10 +145,25 @@ export const AssetDetailsPage: React.FC = () => {
 
       {/* Asset Hero Header */}
       <div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
             {currentAsset?.name || symbolOrId}
           </h1>
+          {isStock && (currentAsset as StockAsset)?.subType === 'reit' && (
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full">
+              <Coins size={12} className="stroke-[2.5]" /> REIT · Quarterly Payout
+            </span>
+          )}
+          {isStock && (currentAsset as StockAsset)?.subType === 'invit' && (
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-teal-600 dark:text-teal-400 bg-teal-500/10 border border-teal-500/20 px-2.5 py-0.5 rounded-full">
+              <Coins size={12} className="stroke-[2.5]" /> InvIT · Quarterly Payout
+            </span>
+          )}
+          {isStock && !(currentAsset as StockAsset)?.subType && (currentAsset as StockAsset)?.dividendFrequency === 'Quarterly' && (
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full">
+              <Coins size={12} className="stroke-[2.5]" /> Quarterly Dividend
+            </span>
+          )}
           {currentAsset?.isOfflineCached && (
             <span
               title="Showing cached data"
@@ -159,7 +174,7 @@ export const AssetDetailsPage: React.FC = () => {
           )}
         </div>
         <div className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mt-0.5">
-          {isStock && `${(currentAsset as StockAsset)?.symbol || symbolOrId} · ${(currentAsset as StockAsset)?.exchange || 'NSE'}${(currentAsset as StockAsset)?.capCategory ? ` · ${(currentAsset as StockAsset).capCategory?.toUpperCase()} CAP` : ''}`}
+          {isStock && `${(currentAsset as StockAsset)?.symbol || symbolOrId} · ${(currentAsset as StockAsset)?.exchange || 'NSE'}${(currentAsset as StockAsset)?.subType ? ` · ${(currentAsset as StockAsset)?.subType?.toUpperCase()}` : (currentAsset as StockAsset)?.capCategory ? ` · ${(currentAsset as StockAsset).capCategory?.toUpperCase()} CAP` : ''}`}
           {isCrypto && `${(currentAsset as CryptoAsset)?.symbol || symbolOrId} · Crypto`}
           {isCommodity && `${(currentAsset as CommodityAsset)?.symbol || symbolOrId} · ${(currentAsset as CommodityAsset)?.unit || 'Precious Metal'}`}
         </div>
@@ -184,6 +199,29 @@ export const AssetDetailsPage: React.FC = () => {
           showAmount={true}
         />
       </div>
+
+      {/* REIT / InvIT Quarterly Distribution Educational Banner */}
+      {isStock && ((currentAsset as StockAsset)?.subType === 'reit' || (currentAsset as StockAsset)?.subType === 'invit' || (currentAsset as StockAsset)?.dividendFrequency === 'Quarterly') && (
+        <div className="flex items-start gap-3 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-200">
+          <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5">
+            <Coins size={18} className="stroke-[2.5]" />
+          </div>
+          <div className="text-xs space-y-1">
+            <div className="font-bold text-sm text-emerald-900 dark:text-emerald-100">
+              {(currentAsset as StockAsset)?.subType === 'reit'
+                ? 'REIT · SEBI Mandated Quarterly Distribution'
+                : (currentAsset as StockAsset)?.subType === 'invit'
+                ? 'InvIT · SEBI Mandated Quarterly Distribution'
+                : 'Quarterly Dividend Paying Asset'}
+            </div>
+            <p className="leading-relaxed opacity-90 text-[11px]">
+              {(currentAsset as StockAsset)?.subType === 'reit' || (currentAsset as StockAsset)?.subType === 'invit'
+                ? 'Under SEBI regulations, at least 90% of Net Distributable Cash Flows (NDCF) must be distributed to unitholders. In practice, listed Indian trusts pay distributions every quarter (interest, dividends, and capital repayments).'
+                : 'This asset distributes cash dividends to shareholders on a regular quarterly schedule.'}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Responsive Market Chart */}
       <div>
@@ -218,13 +256,25 @@ export const AssetDetailsPage: React.FC = () => {
               <StatItem
                 label="Segment"
                 value={
-                  (currentAsset as StockAsset)?.capCategory === 'large'
+                  (currentAsset as StockAsset)?.subType === 'reit'
+                    ? 'Real Estate Inv. Trust'
+                    : (currentAsset as StockAsset)?.subType === 'invit'
+                    ? 'Infrastructure Inv. Trust'
+                    : (currentAsset as StockAsset)?.capCategory === 'large'
                     ? 'Large Cap (Nifty 50)'
                     : (currentAsset as StockAsset)?.capCategory === 'mid'
                     ? 'Mid Cap'
                     : (currentAsset as StockAsset)?.capCategory === 'small'
                     ? 'Small Cap'
                     : 'NSE Listed'
+                }
+              />
+              <StatItem
+                label="Payout Frequency"
+                value={
+                  (currentAsset as StockAsset)?.subType === 'reit' || (currentAsset as StockAsset)?.subType === 'invit' || (currentAsset as StockAsset)?.dividendFrequency === 'Quarterly'
+                    ? 'Quarterly (Every 3 Mo)'
+                    : 'Periodic'
                 }
               />
               <StatItem label="Exchange" value={(currentAsset as StockAsset)?.exchange || 'NSE'} />

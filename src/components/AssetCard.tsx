@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Star, WifiOff } from 'lucide-react';
+import { Star, WifiOff, Coins } from 'lucide-react';
 import { MarketAsset, StockAsset, CommodityAsset } from '../types/market';
 import { PriceChange } from './PriceChange';
 import { formatCurrency } from '../utils/formatters';
@@ -25,17 +25,24 @@ export const AssetCard: React.FC<AssetCardProps> = ({
   const getSubtitle = () => {
     if (asset.category === 'stock') {
       const stock = asset as StockAsset;
-      const capLabel =
-        stock.capCategory === 'large'
+      const typeLabel =
+        stock.subType === 'reit'
+          ? 'REIT'
+          : stock.subType === 'invit'
+          ? 'InvIT'
+          : stock.capCategory === 'large'
           ? 'Large Cap'
           : stock.capCategory === 'mid'
           ? 'Mid Cap'
           : stock.capCategory === 'small'
           ? 'Small Cap'
           : null;
-      return capLabel
-        ? `${asset.symbol} · ${stock.exchange} · ${capLabel}`
-        : `${asset.symbol} · ${stock.exchange}`;
+      const payoutLabel =
+        stock.dividendFrequency === 'Quarterly' || stock.subType === 'reit' || stock.subType === 'invit'
+          ? 'Quarterly Payout'
+          : null;
+      const parts = [asset.symbol, stock.exchange, typeLabel, payoutLabel].filter(Boolean);
+      return parts.join(' · ');
     }
     if (asset.category === 'crypto') {
       return `${asset.symbol || ''} · Crypto`;
@@ -51,6 +58,13 @@ export const AssetCard: React.FC<AssetCardProps> = ({
   };
 
   const currency = asset.category === 'crypto' ? '$' : '₹';
+
+  const isStock = asset.category === 'stock';
+  const stockAsset = isStock ? (asset as StockAsset) : null;
+  const isQuarterly =
+    stockAsset?.dividendFrequency === 'Quarterly' ||
+    stockAsset?.subType === 'reit' ||
+    stockAsset?.subType === 'invit';
 
   return (
     <div
@@ -69,10 +83,28 @@ export const AssetCard: React.FC<AssetCardProps> = ({
       {/* Header: Name, Subtitle and Star */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0 pr-2">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center flex-wrap gap-1.5">
             <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 truncate tracking-tight">
               {asset.name}
             </h2>
+            {stockAsset?.subType === 'reit' && (
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 shrink-0">
+                <Coins size={10} className="stroke-[2.5]" />
+                REIT · Quarterly Payout
+              </span>
+            )}
+            {stockAsset?.subType === 'invit' && (
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-teal-500/15 text-teal-600 dark:text-teal-400 border border-teal-500/25 shrink-0">
+                <Coins size={10} className="stroke-[2.5]" />
+                InvIT · Quarterly Payout
+              </span>
+            )}
+            {isStock && !stockAsset?.subType && isQuarterly && (
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 shrink-0">
+                <Coins size={10} className="stroke-[2.5]" />
+                Quarterly Dividend
+              </span>
+            )}
             {asset.id?.includes('KERALA') && (
               <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20 shrink-0">
                 Market Rate

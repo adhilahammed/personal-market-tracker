@@ -24,74 +24,95 @@ export interface TejResponse {
   };
 }
 
-// Known company directory categorized by Market Cap
+// Known company directory categorized by Market Cap & Asset Subtype
 export interface StockDirectoryItem {
   symbol: string;
   name: string;
   exchange: 'NSE' | 'BSE';
   capCategory: 'large' | 'mid' | 'small';
+  subType?: 'stock' | 'reit' | 'invit';
+  dividendFrequency?: 'Quarterly' | 'Semi-Annual' | 'Annual';
 }
 
 export const STOCK_DIRECTORY: StockDirectoryItem[] = [
+  // REITs & InvITs (SEBI Mandated Quarterly Distributions)
+  { symbol: 'EMBASSY', name: 'Embassy Office Parks REIT', exchange: 'NSE', capCategory: 'mid', subType: 'reit', dividendFrequency: 'Quarterly' },
+  { symbol: 'MINDSPACE', name: 'Mindspace Business Parks REIT', exchange: 'NSE', capCategory: 'mid', subType: 'reit', dividendFrequency: 'Quarterly' },
+  { symbol: 'BIRET', name: 'Brookfield India Real Estate Trust', exchange: 'NSE', capCategory: 'small', subType: 'reit', dividendFrequency: 'Quarterly' },
+  { symbol: 'NXST', name: 'Nexus Select Trust REIT', exchange: 'NSE', capCategory: 'mid', subType: 'reit', dividendFrequency: 'Quarterly' },
+  { symbol: 'PGINVIT', name: 'Powergrid Infrastructure InvIT', exchange: 'NSE', capCategory: 'small', subType: 'invit', dividendFrequency: 'Quarterly' },
+  { symbol: 'INDIGRID', name: 'India Grid Trust InvIT', exchange: 'NSE', capCategory: 'small', subType: 'invit', dividendFrequency: 'Quarterly' },
+  { symbol: 'IRBINVIT', name: 'IRB InvIT Fund', exchange: 'NSE', capCategory: 'small', subType: 'invit', dividendFrequency: 'Quarterly' },
+
   // Large Cap (Nifty 50 Giants)
-  { symbol: 'RELIANCE', name: 'Reliance Industries Ltd.', exchange: 'NSE', capCategory: 'large' },
-  { symbol: 'TCS', name: 'Tata Consultancy Services', exchange: 'NSE', capCategory: 'large' },
-  { symbol: 'HDFCBANK', name: 'HDFC Bank Limited', exchange: 'NSE', capCategory: 'large' },
-  { symbol: 'ICICIBANK', name: 'ICICI Bank Limited', exchange: 'NSE', capCategory: 'large' },
-  { symbol: 'BHARTIARTL', name: 'Bharti Airtel Limited', exchange: 'NSE', capCategory: 'large' },
-  { symbol: 'SBIN', name: 'State Bank of India', exchange: 'NSE', capCategory: 'large' },
-  { symbol: 'INFY', name: 'Infosys Limited', exchange: 'NSE', capCategory: 'large' },
-  { symbol: 'ITC', name: 'ITC Limited', exchange: 'NSE', capCategory: 'large' },
-  { symbol: 'LT', name: 'Larsen & Toubro Ltd.', exchange: 'NSE', capCategory: 'large' },
-  { symbol: 'TATAMOTORS', name: 'Tata Motors Limited', exchange: 'NSE', capCategory: 'large' },
-  { symbol: 'MARUTI', name: 'Maruti Suzuki India Ltd.', exchange: 'NSE', capCategory: 'large' },
-  { symbol: 'SUNPHARMA', name: 'Sun Pharmaceutical Ind.', exchange: 'NSE', capCategory: 'large' },
-  { symbol: 'TATASTEEL', name: 'Tata Steel Limited', exchange: 'NSE', capCategory: 'large' },
-  { symbol: 'BAJFINANCE', name: 'Bajaj Finance Limited', exchange: 'NSE', capCategory: 'large' },
-  { symbol: 'ADANIENT', name: 'Adani Enterprises Ltd.', exchange: 'NSE', capCategory: 'large' },
-  { symbol: 'WIPRO', name: 'Wipro Limited', exchange: 'NSE', capCategory: 'large' },
-  { symbol: 'NTPC', name: 'NTPC Limited', exchange: 'NSE', capCategory: 'large' },
-  { symbol: 'POWERGRID', name: 'Power Grid Corporation', exchange: 'NSE', capCategory: 'large' },
-  { symbol: 'TITAN', name: 'Titan Company Limited', exchange: 'NSE', capCategory: 'large' },
-  { symbol: 'ULTRACEMCO', name: 'UltraTech Cement Ltd.', exchange: 'NSE', capCategory: 'large' },
-  { symbol: 'ASIANPAINT', name: 'Asian Paints Limited', exchange: 'NSE', capCategory: 'large' },
-  { symbol: 'COALINDIA', name: 'Coal India Limited', exchange: 'NSE', capCategory: 'large' },
+  { symbol: 'RELIANCE', name: 'Reliance Industries Ltd.', exchange: 'NSE', capCategory: 'large', subType: 'stock' },
+  { symbol: 'TCS', name: 'Tata Consultancy Services', exchange: 'NSE', capCategory: 'large', subType: 'stock' },
+  { symbol: 'HDFCBANK', name: 'HDFC Bank Limited', exchange: 'NSE', capCategory: 'large', subType: 'stock' },
+  { symbol: 'ICICIBANK', name: 'ICICI Bank Limited', exchange: 'NSE', capCategory: 'large', subType: 'stock' },
+  { symbol: 'BHARTIARTL', name: 'Bharti Airtel Limited', exchange: 'NSE', capCategory: 'large', subType: 'stock' },
+  { symbol: 'SBIN', name: 'State Bank of India', exchange: 'NSE', capCategory: 'large', subType: 'stock' },
+  { symbol: 'INFY', name: 'Infosys Limited', exchange: 'NSE', capCategory: 'large', subType: 'stock' },
+  { symbol: 'ITC', name: 'ITC Limited', exchange: 'NSE', capCategory: 'large', subType: 'stock' },
+  { symbol: 'LT', name: 'Larsen & Toubro Ltd.', exchange: 'NSE', capCategory: 'large', subType: 'stock' },
+  { symbol: 'TATAMOTORS', name: 'Tata Motors Limited', exchange: 'NSE', capCategory: 'large', subType: 'stock' },
+  { symbol: 'MARUTI', name: 'Maruti Suzuki India Ltd.', exchange: 'NSE', capCategory: 'large', subType: 'stock' },
+  { symbol: 'SUNPHARMA', name: 'Sun Pharmaceutical Ind.', exchange: 'NSE', capCategory: 'large', subType: 'stock' },
+  { symbol: 'TATASTEEL', name: 'Tata Steel Limited', exchange: 'NSE', capCategory: 'large', subType: 'stock' },
+  { symbol: 'BAJFINANCE', name: 'Bajaj Finance Limited', exchange: 'NSE', capCategory: 'large', subType: 'stock' },
+  { symbol: 'ADANIENT', name: 'Adani Enterprises Ltd.', exchange: 'NSE', capCategory: 'large', subType: 'stock' },
+  { symbol: 'WIPRO', name: 'Wipro Limited', exchange: 'NSE', capCategory: 'large', subType: 'stock' },
+  { symbol: 'NTPC', name: 'NTPC Limited', exchange: 'NSE', capCategory: 'large', subType: 'stock' },
+  { symbol: 'POWERGRID', name: 'Power Grid Corporation', exchange: 'NSE', capCategory: 'large', subType: 'stock' },
+  { symbol: 'TITAN', name: 'Titan Company Limited', exchange: 'NSE', capCategory: 'large', subType: 'stock' },
+  { symbol: 'ULTRACEMCO', name: 'UltraTech Cement Ltd.', exchange: 'NSE', capCategory: 'large', subType: 'stock' },
+  { symbol: 'ASIANPAINT', name: 'Asian Paints Limited', exchange: 'NSE', capCategory: 'large', subType: 'stock' },
+  { symbol: 'COALINDIA', name: 'Coal India Limited', exchange: 'NSE', capCategory: 'large', subType: 'stock' },
 
   // Mid Cap (High Growth / Nifty Midcap Leaders)
-  { symbol: 'ZOMATO', name: 'Zomato Limited', exchange: 'NSE', capCategory: 'mid' },
-  { symbol: 'BEL', name: 'Bharat Electronics Ltd.', exchange: 'NSE', capCategory: 'mid' },
-  { symbol: 'TRENT', name: 'Trent Limited', exchange: 'NSE', capCategory: 'mid' },
-  { symbol: 'POLYCAB', name: 'Polycab India Ltd.', exchange: 'NSE', capCategory: 'mid' },
-  { symbol: 'PERSISTENT', name: 'Persistent Systems Ltd.', exchange: 'NSE', capCategory: 'mid' },
-  { symbol: 'DIXON', name: 'Dixon Technologies Ltd.', exchange: 'NSE', capCategory: 'mid' },
-  { symbol: 'SUZLON', name: 'Suzlon Energy Limited', exchange: 'NSE', capCategory: 'mid' },
-  { symbol: 'HAL', name: 'Hindustan Aeronautics Ltd.', exchange: 'NSE', capCategory: 'mid' },
-  { symbol: 'FEDERALBNK', name: 'Federal Bank Limited', exchange: 'NSE', capCategory: 'mid' },
-  { symbol: 'BHEL', name: 'Bharat Heavy Electricals', exchange: 'NSE', capCategory: 'mid' },
-  { symbol: 'COFORGE', name: 'Coforge Limited', exchange: 'NSE', capCategory: 'mid' },
-  { symbol: 'TATAELXSI', name: 'Tata Elxsi Limited', exchange: 'NSE', capCategory: 'mid' },
-  { symbol: 'KPITTECH', name: 'KPIT Technologies Ltd.', exchange: 'NSE', capCategory: 'mid' },
-  { symbol: 'ASHOKLEY', name: 'Ashok Leyland Limited', exchange: 'NSE', capCategory: 'mid' },
-  { symbol: 'MOTHERSON', name: 'Samvardhana Motherson', exchange: 'NSE', capCategory: 'mid' },
-  { symbol: 'BDL', name: 'Bharat Dynamics Limited', exchange: 'NSE', capCategory: 'mid' },
-  { symbol: 'TATACOMM', name: 'Tata Communications Ltd.', exchange: 'NSE', capCategory: 'mid' },
-  { symbol: 'YESBANK', name: 'Yes Bank Limited', exchange: 'NSE', capCategory: 'mid' },
+  { symbol: 'ZOMATO', name: 'Zomato Limited', exchange: 'NSE', capCategory: 'mid', subType: 'stock' },
+  { symbol: 'BEL', name: 'Bharat Electronics Ltd.', exchange: 'NSE', capCategory: 'mid', subType: 'stock' },
+  { symbol: 'TRENT', name: 'Trent Limited', exchange: 'NSE', capCategory: 'mid', subType: 'stock' },
+  { symbol: 'POLYCAB', name: 'Polycab India Ltd.', exchange: 'NSE', capCategory: 'mid', subType: 'stock' },
+  { symbol: 'PERSISTENT', name: 'Persistent Systems Ltd.', exchange: 'NSE', capCategory: 'mid', subType: 'stock' },
+  { symbol: 'DIXON', name: 'Dixon Technologies Ltd.', exchange: 'NSE', capCategory: 'mid', subType: 'stock' },
+  { symbol: 'SUZLON', name: 'Suzlon Energy Limited', exchange: 'NSE', capCategory: 'mid', subType: 'stock' },
+  { symbol: 'HAL', name: 'Hindustan Aeronautics Ltd.', exchange: 'NSE', capCategory: 'mid', subType: 'stock' },
+  { symbol: 'FEDERALBNK', name: 'Federal Bank Limited', exchange: 'NSE', capCategory: 'mid', subType: 'stock' },
+  { symbol: 'BHEL', name: 'Bharat Heavy Electricals', exchange: 'NSE', capCategory: 'mid', subType: 'stock' },
+  { symbol: 'COFORGE', name: 'Coforge Limited', exchange: 'NSE', capCategory: 'mid', subType: 'stock' },
+  { symbol: 'TATAELXSI', name: 'Tata Elxsi Limited', exchange: 'NSE', capCategory: 'mid', subType: 'stock' },
+  { symbol: 'KPITTECH', name: 'KPIT Technologies Ltd.', exchange: 'NSE', capCategory: 'mid', subType: 'stock' },
+  { symbol: 'ASHOKLEY', name: 'Ashok Leyland Limited', exchange: 'NSE', capCategory: 'mid', subType: 'stock' },
+  { symbol: 'MOTHERSON', name: 'Samvardhana Motherson', exchange: 'NSE', capCategory: 'mid', subType: 'stock' },
+  { symbol: 'BDL', name: 'Bharat Dynamics Limited', exchange: 'NSE', capCategory: 'mid', subType: 'stock' },
+  { symbol: 'TATACOMM', name: 'Tata Communications Ltd.', exchange: 'NSE', capCategory: 'mid', subType: 'stock' },
+  { symbol: 'YESBANK', name: 'Yes Bank Limited', exchange: 'NSE', capCategory: 'mid', subType: 'stock' },
 
   // Small Cap (High Momentum & Popular Retail Stocks)
-  { symbol: 'IRFC', name: 'Indian Railway Finance Corp', exchange: 'NSE', capCategory: 'small' },
-  { symbol: 'RVNL', name: 'Rail Vikas Nigam Limited', exchange: 'NSE', capCategory: 'small' },
-  { symbol: 'MAZDOCK', name: 'Mazagon Dock Shipbuilders', exchange: 'NSE', capCategory: 'small' },
-  { symbol: 'CDSL', name: 'Central Depository Services', exchange: 'NSE', capCategory: 'small' },
-  { symbol: 'BSE', name: 'BSE Limited', exchange: 'NSE', capCategory: 'small' },
-  { symbol: 'ANGELONE', name: 'Angel One Limited', exchange: 'NSE', capCategory: 'small' },
-  { symbol: 'HUDCO', name: 'Housing & Urban Development', exchange: 'NSE', capCategory: 'small' },
-  { symbol: 'IREDA', name: 'Indian Renewable Energy Dev.', exchange: 'NSE', capCategory: 'small' },
-  { symbol: 'OLECTRA', name: 'Olectra Greentech Ltd.', exchange: 'NSE', capCategory: 'small' },
-  { symbol: 'KAYNES', name: 'Kaynes Technology India', exchange: 'NSE', capCategory: 'small' },
-  { symbol: 'MAPMYINDIA', name: 'CE Info Systems (MapmyIndia)', exchange: 'NSE', capCategory: 'small' },
-  { symbol: 'CYIENT', name: 'Cyient Limited', exchange: 'NSE', capCategory: 'small' },
-  { symbol: 'NBCC', name: 'NBCC (India) Limited', exchange: 'NSE', capCategory: 'small' },
-  { symbol: 'RITES', name: 'RITES Limited', exchange: 'NSE', capCategory: 'small' },
+  { symbol: 'IRFC', name: 'Indian Railway Finance Corp', exchange: 'NSE', capCategory: 'small', subType: 'stock' },
+  { symbol: 'RVNL', name: 'Rail Vikas Nigam Limited', exchange: 'NSE', capCategory: 'small', subType: 'stock' },
+  { symbol: 'MAZDOCK', name: 'Mazagon Dock Shipbuilders', exchange: 'NSE', capCategory: 'small', subType: 'stock' },
+  { symbol: 'CDSL', name: 'Central Depository Services', exchange: 'NSE', capCategory: 'small', subType: 'stock' },
+  { symbol: 'BSE', name: 'BSE Limited', exchange: 'NSE', capCategory: 'small', subType: 'stock' },
+  { symbol: 'ANGELONE', name: 'Angel One Limited', exchange: 'NSE', capCategory: 'small', subType: 'stock' },
+  { symbol: 'HUDCO', name: 'Housing & Urban Development', exchange: 'NSE', capCategory: 'small', subType: 'stock' },
+  { symbol: 'IREDA', name: 'Indian Renewable Energy Dev.', exchange: 'NSE', capCategory: 'small', subType: 'stock' },
+  { symbol: 'OLECTRA', name: 'Olectra Greentech Ltd.', exchange: 'NSE', capCategory: 'small', subType: 'stock' },
+  { symbol: 'KAYNES', name: 'Kaynes Technology India', exchange: 'NSE', capCategory: 'small', subType: 'stock' },
+  { symbol: 'MAPMYINDIA', name: 'CE Info Systems (MapmyIndia)', exchange: 'NSE', capCategory: 'small', subType: 'stock' },
+  { symbol: 'CYIENT', name: 'Cyient Limited', exchange: 'NSE', capCategory: 'small', subType: 'stock' },
+  { symbol: 'NBCC', name: 'NBCC (India) Limited', exchange: 'NSE', capCategory: 'small', subType: 'stock' },
+  { symbol: 'RITES', name: 'RITES Limited', exchange: 'NSE', capCategory: 'small', subType: 'stock' },
+];
+
+export const REIT_INVIT_STOCKS = [
+  'EMBASSY',
+  'MINDSPACE',
+  'BIRET',
+  'NXST',
+  'PGINVIT',
+  'INDIGRID',
+  'IRBINVIT',
 ];
 
 export const LARGE_CAP_STOCKS = ['RELIANCE', 'TCS', 'HDFCBANK', 'ICICIBANK', 'BHARTIARTL', 'SBIN', 'INFY', 'ITC', 'LT', 'TATAMOTORS'];
@@ -123,6 +144,16 @@ class StockApiService {
     return found?.capCategory;
   }
 
+  public getStockSubType(symbol: string): 'stock' | 'reit' | 'invit' | undefined {
+    const found = STOCK_DIRECTORY.find((s) => s.symbol.toUpperCase() === symbol.toUpperCase());
+    return found?.subType;
+  }
+
+  public getStockDividendFrequency(symbol: string): 'Quarterly' | 'Semi-Annual' | 'Annual' | undefined {
+    const found = STOCK_DIRECTORY.find((s) => s.symbol.toUpperCase() === symbol.toUpperCase());
+    return found?.dividendFrequency;
+  }
+
   async getQuote(symbolInput: string, exchange: 'NSE' | 'BSE' = 'NSE'): Promise<StockAsset> {
     const symbol = symbolInput.toUpperCase().replace(/\.(NS|BO)$/i, '');
     const ex = exchange.toLowerCase();
@@ -142,6 +173,8 @@ class StockApiService {
             category: 'stock',
             exchange,
             capCategory: this.getStockCapCategory(symbol),
+            subType: this.getStockSubType(symbol),
+            dividendFrequency: this.getStockDividendFrequency(symbol),
             price: liveData.price,
             change: liveData.change,
             changePercent: liveData.changePercent,
@@ -200,6 +233,8 @@ class StockApiService {
       category: 'stock',
       exchange,
       capCategory: this.getStockCapCategory(symbol),
+      subType: this.getStockSubType(symbol),
+      dividendFrequency: this.getStockDividendFrequency(symbol),
       price: currentPrice,
       change,
       changePercent,
@@ -238,6 +273,24 @@ class StockApiService {
     const symbol = symbolInput.toUpperCase().replace(/\.(NS|BO)$/i, '');
     const ex = exchange.toLowerCase();
 
+    // 1. Try serverless proxy history first (supports REITs, InvITs, and equities)
+    try {
+      const proxyUrl = `/api/stock?symbol=${encodeURIComponent(symbol)}&history=true&period=${encodeURIComponent(period)}`;
+      const proxyRes = await fetch(proxyUrl);
+      if (proxyRes.ok) {
+        const contentType = proxyRes.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          const proxyData = await proxyRes.json();
+          if (Array.isArray(proxyData) && proxyData.length > 0) {
+            return proxyData;
+          }
+        }
+      }
+    } catch {
+      // Fallback to TejHQ
+    }
+
+    // 2. Fallback to TejHQ OHLCV
     // Compute date range
     const toDate = new Date();
     const fromDate = new Date();
@@ -299,6 +352,8 @@ class StockApiService {
       category: 'stock' as const,
       exchange: s.exchange,
       capCategory: s.capCategory,
+      subType: s.subType,
+      dividendFrequency: s.dividendFrequency,
     }));
 
     // Universal direct symbol lookup: if user typed a valid ticker not already in results
@@ -310,6 +365,8 @@ class StockApiService {
         name: `${q} · Direct NSE Lookup`,
         category: 'stock' as const,
         exchange: 'NSE',
+        subType: this.getStockSubType(q),
+        dividendFrequency: this.getStockDividendFrequency(q),
       });
     }
 

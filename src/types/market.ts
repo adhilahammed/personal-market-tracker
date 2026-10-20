@@ -26,6 +26,8 @@ export interface StockAsset extends BaseAsset {
   category: 'stock';
   exchange: 'NSE' | 'BSE';
   capCategory?: MarketCapCategory;
+  subType?: 'stock' | 'reit' | 'invit';
+  dividendFrequency?: 'Quarterly' | 'Semi-Annual' | 'Annual' | null;
   open: number | null;
   high24h: number | null;
   low24h: number | null;
@@ -69,4 +71,6 @@ export interface SearchResult {
   category: AssetCategory;
   exchange?: string;
   capCategory?: MarketCapCategory;
+  subType?: 'stock' | 'reit' | 'invit';
+  dividendFrequency?: 'Quarterly' | 'Semi-Annual' | 'Annual' | null;
 }
