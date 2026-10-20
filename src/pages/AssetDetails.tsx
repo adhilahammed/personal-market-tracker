@@ -151,12 +151,12 @@ export const AssetDetailsPage: React.FC = () => {
           </h1>
           {isStock && (currentAsset as StockAsset)?.subType === 'reit' && (
             <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full">
-              <Coins size={12} className="stroke-[2.5]" /> REIT · Quarterly Payout
+              <Coins size={12} className="stroke-[2.5]" /> REIT
             </span>
           )}
           {isStock && (currentAsset as StockAsset)?.subType === 'invit' && (
             <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-teal-600 dark:text-teal-400 bg-teal-500/10 border border-teal-500/20 px-2.5 py-0.5 rounded-full">
-              <Coins size={12} className="stroke-[2.5]" /> InvIT · Quarterly Payout
+              <Coins size={12} className="stroke-[2.5]" /> InvIT
             </span>
           )}
           {isStock && !(currentAsset as StockAsset)?.subType && (currentAsset as StockAsset)?.dividendFrequency === 'Quarterly' && (

@@ -91,7 +91,7 @@ export const StocksPage: React.FC = () => {
       return (
         <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
           <Coins size={10} className="stroke-[2.5]" />
-          REIT · Quarterly Payout
+          REIT
         </span>
       );
     }
@@ -99,7 +99,7 @@ export const StocksPage: React.FC = () => {
       return (
         <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20">
           <Coins size={10} className="stroke-[2.5]" />
-          InvIT · Quarterly Payout
+          InvIT
         </span>
       );
     }

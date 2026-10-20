@@ -37,11 +37,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({
           : stock.capCategory === 'small'
           ? 'Small Cap'
           : null;
-      const payoutLabel =
-        stock.dividendFrequency === 'Quarterly' || stock.subType === 'reit' || stock.subType === 'invit'
-          ? 'Quarterly Payout'
-          : null;
-      const parts = [asset.symbol, stock.exchange, typeLabel, payoutLabel].filter(Boolean);
+      const parts = [asset.symbol, stock.exchange, typeLabel].filter(Boolean);
       return parts.join(' · ');
     }
     if (asset.category === 'crypto') {
@@ -90,13 +86,13 @@ export const AssetCard: React.FC<AssetCardProps> = ({
             {stockAsset?.subType === 'reit' && (
               <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 shrink-0">
                 <Coins size={10} className="stroke-[2.5]" />
-                REIT · Quarterly Payout
+                REIT
               </span>
             )}
             {stockAsset?.subType === 'invit' && (
               <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-teal-500/15 text-teal-600 dark:text-teal-400 border border-teal-500/25 shrink-0">
                 <Coins size={10} className="stroke-[2.5]" />
-                InvIT · Quarterly Payout
+                InvIT
               </span>
             )}
             {isStock && !stockAsset?.subType && isQuarterly && (
