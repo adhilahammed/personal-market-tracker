@@ -8,12 +8,14 @@ import { formatCurrency } from '../utils/formatters';
 interface AssetCardProps {
   asset: MarketAsset;
   isFavorite: boolean;
+  isRecentFavorite?: boolean;
   onToggleFavorite: (e: React.MouseEvent) => void;
 }
 
 export const AssetCard: React.FC<AssetCardProps> = ({
   asset,
   isFavorite,
+  isRecentFavorite = false,
   onToggleFavorite,
 }) => {
   const navigate = useNavigate();
@@ -131,8 +133,15 @@ export const AssetCard: React.FC<AssetCardProps> = ({
           type="button"
           aria-label={
             isFavorite
-              ? `Remove ${asset.name} from favorites`
+              ? `Remove ${asset.name} from favorites${isRecentFavorite ? ' (Added in last 30 days)' : ''}`
               : `Add ${asset.name} to favorites`
+          }
+          title={
+            isFavorite
+              ? isRecentFavorite
+                ? 'Added to favorites in last 30 days'
+                : 'Added to favorites before 30 days'
+              : 'Add to favorites'
           }
           onClick={(e) => {
             e.stopPropagation();
@@ -144,7 +153,9 @@ export const AssetCard: React.FC<AssetCardProps> = ({
             size={22}
             className={`transition-colors ${
               isFavorite
-                ? 'fill-amber-400 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]'
+                ? isRecentFavorite
+                  ? 'fill-cyan-400 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.55)]'
+                  : 'fill-amber-400 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]'
                 : 'text-slate-400 dark:text-slate-600 hover:text-amber-400'
             }`}
           />

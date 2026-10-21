@@ -48,7 +48,7 @@ export const StocksPage: React.FC = () => {
   }, [activeCap]);
 
   const { data: quotes, isLoading, isError, refetch } = useStockQuotes(activeSymbols);
-  const { isFavorite, toggleFavorite } = useFavorites();
+  const { isFavorite, isRecentFavorite, toggleFavorite } = useFavorites();
 
   // Handle Search
   const searchResults: SearchResult[] = useMemo(() => {
@@ -189,6 +189,7 @@ export const StocksPage: React.FC = () => {
             <div className="space-y-2">
               {searchResults.map((res) => {
                 const fav = isFavorite(res.id);
+                const isRecent = isRecentFavorite(res.id);
                 const isDirectLookup = res.name.includes('Direct NSE Lookup');
                 return (
                   <div
@@ -216,7 +217,8 @@ export const StocksPage: React.FC = () => {
                     <div className="flex items-center gap-2 shrink-0">
                       <button
                         type="button"
-                        aria-label={fav ? `Remove ${res.name} from favorites` : `Add ${res.name} to favorites`}
+                        aria-label={fav ? `Remove ${res.name} from favorites${isRecent ? ' (Added in last 30 days)' : ''}` : `Add ${res.name} to favorites`}
+                        title={fav ? (isRecent ? 'Added in last 30 days' : 'Added before 30 days') : 'Add to favorites'}
                         onClick={(e) => {
                           e.stopPropagation();
                           toggleFavorite(res);
@@ -225,7 +227,13 @@ export const StocksPage: React.FC = () => {
                       >
                         <Star
                           size={20}
-                          className={fav ? 'fill-amber-400 text-amber-400' : 'text-slate-400 dark:text-slate-600'}
+                          className={
+                            fav
+                              ? isRecent
+                                ? 'fill-cyan-400 text-cyan-400 drop-shadow-[0_0_6px_rgba(34,211,238,0.55)]'
+                                : 'fill-amber-400 text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.5)]'
+                              : 'text-slate-400 dark:text-slate-600'
+                          }
                         />
                       </button>
                       <ArrowRight size={16} className="text-slate-400" />
@@ -277,6 +285,7 @@ export const StocksPage: React.FC = () => {
                 key={asset.id}
                 asset={asset}
                 isFavorite={isFavorite(asset.id)}
+                isRecentFavorite={isRecentFavorite(asset.id)}
                 onToggleFavorite={() => toggleFavorite(asset)}
               />
             ))}

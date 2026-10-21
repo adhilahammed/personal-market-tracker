@@ -9,7 +9,7 @@ import { AssetCard } from '../components/AssetCard';
 import { MarketAsset } from '../types/market';
 
 export const FavoritesPage: React.FC = () => {
-  const { favorites, isFavorite, toggleFavorite } = useFavorites();
+  const { favorites, isFavorite, isRecentFavorite, toggleFavorite } = useFavorites();
 
   // Split favorite IDs by category
   const favoriteStockSymbols = useMemo(() => {
@@ -130,6 +130,7 @@ export const FavoritesPage: React.FC = () => {
               key={asset.id}
               asset={asset}
               isFavorite={isFavorite(asset.id)}
+              isRecentFavorite={isRecentFavorite(asset.id)}
               onToggleFavorite={() => toggleFavorite(asset)}
             />
           ))}

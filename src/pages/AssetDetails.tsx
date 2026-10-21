@@ -14,7 +14,7 @@ export const AssetDetailsPage: React.FC = () => {
   const { assetId } = useParams<{ assetId: string }>();
   const navigate = useNavigate();
   const [period, setPeriod] = useState<TimePeriod>('1M');
-  const { isFavorite, toggleFavorite } = useFavorites();
+  const { isFavorite, isRecentFavorite, toggleFavorite } = useFavorites();
 
   const decodedId = decodeURIComponent(assetId || '');
   const [category, symbolOrId, exchangeOrParam] = decodedId.split(':');
@@ -66,6 +66,7 @@ export const AssetDetailsPage: React.FC = () => {
   const error = isStock ? stockError : isCrypto ? cryptoError : commodityError;
 
   const isFav = currentAsset ? isFavorite(currentAsset.id) : false;
+  const isRecent = currentAsset ? isRecentFavorite(currentAsset.id) : false;
   const isPositive = currentAsset?.changePercent !== null && currentAsset?.changePercent !== undefined && currentAsset.changePercent >= 0;
 
   if (isLoading && !currentAsset) {
@@ -125,8 +126,15 @@ export const AssetDetailsPage: React.FC = () => {
             type="button"
             aria-label={
               isFav
-                ? `Remove ${currentAsset.name} from favorites`
+                ? `Remove ${currentAsset.name} from favorites${isRecent ? ' (Added in last 30 days)' : ''}`
                 : `Add ${currentAsset.name} to favorites`
+            }
+            title={
+              isFav
+                ? isRecent
+                  ? 'Added to favorites in last 30 days'
+                  : 'Added to favorites before 30 days'
+                : 'Add to favorites'
             }
             onClick={() => toggleFavorite(currentAsset)}
             className="flex items-center justify-center w-11 h-11 rounded-full text-slate-400 hover:text-amber-400 active:scale-90 transition-transform"
@@ -135,7 +143,9 @@ export const AssetDetailsPage: React.FC = () => {
               size={24}
               className={`transition-colors ${
                 isFav
-                  ? 'fill-amber-400 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]'
+                  ? isRecent
+                    ? 'fill-cyan-400 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.55)]'
+                    : 'fill-amber-400 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]'
                   : 'text-slate-400 dark:text-slate-600'
               }`}
             />

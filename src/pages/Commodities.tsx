@@ -9,7 +9,7 @@ type CommodityFilter = 'all' | 'market' | 'spot' | 'forex';
 
 export const CommoditiesPage: React.FC = () => {
   const { data: quotes, isLoading, isError, refetch } = useCommodityQuotes();
-  const { isFavorite, toggleFavorite } = useFavorites();
+  const { isFavorite, isRecentFavorite, toggleFavorite } = useFavorites();
   const [filter, setFilter] = useState<CommodityFilter>('all');
 
   const commodityAssets = useMemo(() => {
@@ -215,6 +215,7 @@ export const CommoditiesPage: React.FC = () => {
             key={asset.id}
             asset={asset}
             isFavorite={isFavorite(asset.id)}
+            isRecentFavorite={isRecentFavorite(asset.id)}
             onToggleFavorite={() => toggleFavorite(asset)}
           />
         ))}

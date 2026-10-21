@@ -23,6 +23,23 @@ export function useFavorites() {
     [favorites]
   );
 
+  const getFavorite = useCallback(
+    (id: string): FavoriteItem | undefined => {
+      return favorites.find((f) => f.id === id);
+    },
+    [favorites]
+  );
+
+  const isRecentFavorite = useCallback(
+    (id: string, days = 30): boolean => {
+      const fav = favorites.find((f) => f.id === id);
+      if (!fav || !fav.addedAt) return false;
+      const ms = days * 24 * 60 * 60 * 1000;
+      return Date.now() - fav.addedAt <= ms;
+    },
+    [favorites]
+  );
+
   const addFavorite = useCallback((item: { id: string; category: FavoriteItem['category']; symbol: string; name: string }) => {
     setFavorites((prev) => {
       if (prev.some((f) => f.id === item.id)) return prev;
@@ -73,6 +90,8 @@ export function useFavorites() {
   return {
     favorites,
     isFavorite,
+    isRecentFavorite,
+    getFavorite,
     addFavorite,
     removeFavorite,
     toggleFavorite,
