@@ -10,6 +10,7 @@ interface AssetCardProps {
   isFavorite: boolean;
   isRecentFavorite?: boolean;
   onToggleFavorite: (e: React.MouseEvent) => void;
+  source?: string;
 }
 
 export const AssetCard: React.FC<AssetCardProps> = ({
@@ -17,11 +18,13 @@ export const AssetCard: React.FC<AssetCardProps> = ({
   isFavorite,
   isRecentFavorite = false,
   onToggleFavorite,
+  source,
 }) => {
   const navigate = useNavigate();
 
   const handleCardClick = () => {
-    navigate(`/asset/${encodeURIComponent(asset.id)}`);
+    const query = source ? `?from=${encodeURIComponent(source)}` : '';
+    navigate(`/asset/${encodeURIComponent(asset.id)}${query}`);
   };
 
   const getSubtitle = () => {

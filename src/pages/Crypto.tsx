@@ -173,6 +173,7 @@ export const CryptoPage: React.FC = () => {
                 isFavorite={isFavorite(asset.id)}
                 isRecentFavorite={isRecentFavorite(asset.id)}
                 onToggleFavorite={() => toggleFavorite(asset)}
+                source="crypto"
               />
             ))}
           </div>

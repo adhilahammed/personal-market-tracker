@@ -132,6 +132,7 @@ export const FavoritesPage: React.FC = () => {
               isFavorite={isFavorite(asset.id)}
               isRecentFavorite={isRecentFavorite(asset.id)}
               onToggleFavorite={() => toggleFavorite(asset)}
+              source="favorites"
             />
           ))}
         </div>
