@@ -186,7 +186,7 @@ export const AssetDetailsPage: React.FC = () => {
             }`}
           >
             <Layers size={14} />
-            <span>Target Strategy</span>
+            <span>Targets</span>
           </button>
         </div>
 

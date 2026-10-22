@@ -17,13 +17,12 @@ import { useAssetTargets } from '../hooks/useAssetTargets';
 interface AssetTargetsSectionProps {
   assetId: string;
   currencySymbol: string;
-  assetName: string;
+  assetName?: string;
 }
 
 export const AssetTargetsSection: React.FC<AssetTargetsSectionProps> = ({
   assetId,
   currencySymbol,
-  assetName,
 }) => {
   const { targets, updateLevel, resetToDefaults, clearPrices } = useAssetTargets(assetId);
   const [editingLabelKey, setEditingLabelKey] = useState<TargetLevelKey | null>(null);
@@ -45,9 +44,7 @@ export const AssetTargetsSection: React.FC<AssetTargetsSectionProps> = ({
   };
 
   const handlePriceChange = (key: TargetLevelKey, val: string) => {
-    // Allow digits, decimals, and commas
-    const sanitized = val.replace(/[^0-9.,]/g, '');
-    updateLevel(key, { targetPrice: sanitized });
+    updateLevel(key, { targetPrice: val });
   };
 
   const handleNotesChange = (key: TargetLevelKey, val: string) => {
@@ -77,7 +74,7 @@ export const AssetTargetsSection: React.FC<AssetTargetsSectionProps> = ({
     <div className="space-y-4">
       {/* Section Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark shadow-sm">
-        <div className="space-y-0.5">
+        <div>
           <div className="flex items-center gap-2">
             <span className="p-1.5 rounded-lg bg-blue-500/10 text-blue-500">
               <Layers size={18} className="stroke-[2.5]" />
@@ -89,9 +86,6 @@ export const AssetTargetsSection: React.FC<AssetTargetsSectionProps> = ({
               {setTargetsCount}/4 configured
             </span>
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Set custom buy and sell targets for {assetName}. All fields are fully editable and saved automatically.
-          </p>
         </div>
 
         {/* Global Toolbar */}
@@ -187,10 +181,6 @@ export const AssetTargetsSection: React.FC<AssetTargetsSectionProps> = ({
                       </button>
                     </div>
                   )}
-
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
-                    {config.description}
-                  </p>
                 </div>
 
                 {/* Badges */}
@@ -223,8 +213,7 @@ export const AssetTargetsSection: React.FC<AssetTargetsSectionProps> = ({
                   <input
                     id={`target-input-${config.key}`}
                     type="text"
-                    inputMode="decimal"
-                    placeholder="0.00"
+                    placeholder="Enter target..."
                     value={data?.targetPrice || ''}
                     onChange={(e) => handlePriceChange(config.key, e.target.value)}
                     className="w-full pl-8 pr-16 py-2.5 text-base font-extrabold font-mono text-slate-900 dark:text-white bg-transparent focus:outline-none"
@@ -248,7 +237,7 @@ export const AssetTargetsSection: React.FC<AssetTargetsSectionProps> = ({
                   onClick={() => toggleNotes(config.key)}
                   className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-colors pt-1"
                 >
-                  <span>{isNotesOpen ? 'Hide strategy note' : '+ Add strategy note'}</span>
+                  <span>{isNotesOpen ? 'Hide note' : '+ Add note'}</span>
                   {isNotesOpen ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
                 </button>
 
