@@ -58,7 +58,12 @@ export const AssetCard: React.FC<AssetCardProps> = ({
     return unit ? `${symbol} · ${unit}` : symbol;
   };
 
-  const currency = asset.category === 'crypto' ? '$' : '₹';
+  const isCryptoAsset =
+    asset.category === 'crypto' ||
+    asset.id.toLowerCase().startsWith('crypto') ||
+    asset.id.toLowerCase().includes(':crypto');
+
+  const currency = isCryptoAsset ? '$' : '₹';
 
   const isStock = asset.category === 'stock';
   const stockAsset = isStock ? (asset as StockAsset) : null;

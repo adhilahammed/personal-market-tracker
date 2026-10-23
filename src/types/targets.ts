@@ -1,3 +1,25 @@
+export interface TargetEntry {
+  id: string;
+  date: string; // YYYY-MM-DD
+  priceAtSet: number | null; // Share price at the time when target was set
+  strongDip: number | null;
+  entry: number | null;
+  target: number | null;
+  profitExit: number | null;
+  notes?: string;
+  createdAt: string; // ISO string
+}
+
+export interface AssetTargetsState {
+  activeEntryId: string | null;
+  entries: TargetEntry[];
+}
+
+export interface StoredAssetTargetEntries {
+  [assetId: string]: AssetTargetsState;
+}
+
+// Legacy types preserved for backward compatibility
 export type TargetLevelKey = 'buyHeavily' | 'buy' | 'sell' | 'sellHeavily';
 
 export interface TargetLevelConfig {
@@ -20,38 +42,3 @@ export type AssetTargetsData = Record<TargetLevelKey, TargetLevelData>;
 export interface StoredAssetTargets {
   [assetId: string]: AssetTargetsData;
 }
-
-export const TARGET_LEVELS_CONFIG: TargetLevelConfig[] = [
-  {
-    key: 'buyHeavily',
-    defaultLabel: 'Support 2 (Strong Dip)',
-    actionTag: 'Buy Heavily',
-    type: 'buy',
-    description: 'High-conviction value dip / heavy accumulation target',
-    colorName: 'emerald',
-  },
-  {
-    key: 'buy',
-    defaultLabel: 'Support 1 (Entry)',
-    actionTag: 'Buy',
-    type: 'buy',
-    description: 'Initial support level / primary entry target',
-    colorName: 'cyan',
-  },
-  {
-    key: 'sell',
-    defaultLabel: 'Resistance 1 (Target)',
-    actionTag: 'Sell',
-    type: 'sell',
-    description: 'Initial resistance / partial profit target',
-    colorName: 'amber',
-  },
-  {
-    key: 'sellHeavily',
-    defaultLabel: 'Resistance 2 (Profit Exit)',
-    actionTag: 'Sell Heavily',
-    type: 'sell',
-    description: 'Maximum profit target / strong exit zone',
-    colorName: 'rose',
-  },
-];

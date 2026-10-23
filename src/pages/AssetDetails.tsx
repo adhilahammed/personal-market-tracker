@@ -10,6 +10,7 @@ import { MarketChart } from '../components/MarketChart';
 import { TimePeriod, StockAsset, CryptoAsset, CommodityAsset } from '../types/market';
 import { formatCurrency, formatCompactNumber, formatTimestamp } from '../utils/formatters';
 import { AssetTargetsSection } from '../components/AssetTargetsSection';
+import { CRYPTO_DIRECTORY } from '../api/cryptoApi';
 
 export const AssetDetailsPage: React.FC = () => {
   const { assetId } = useParams<{ assetId: string }>();
@@ -19,7 +20,31 @@ export const AssetDetailsPage: React.FC = () => {
   const { isFavorite, isRecentFavorite, toggleFavorite, favorites } = useFavorites();
 
   const decodedId = decodeURIComponent(assetId || '');
-  const [category, symbolOrId, exchangeOrParam] = decodedId.split(':');
+  const parts = decodedId.split(':');
+  let category = parts[0];
+  let symbolOrId = parts[1];
+  const exchangeOrParam = parts[2];
+
+  // Match against favorites
+  const favoriteMatch = favorites.find((f) => f.id === decodedId);
+
+  // Check if asset is crypto by ID, favorite, or directory
+  const isKnownCrypto =
+    category === 'crypto' ||
+    decodedId.toLowerCase().startsWith('crypto') ||
+    favoriteMatch?.category === 'crypto' ||
+    CRYPTO_DIRECTORY.some(
+      (c) =>
+        c.id.toLowerCase() === decodedId.toLowerCase() ||
+        c.symbol.toLowerCase() === decodedId.toLowerCase() ||
+        c.id.toLowerCase() === (symbolOrId || '').toLowerCase() ||
+        c.symbol.toLowerCase() === (symbolOrId || '').toLowerCase()
+    );
+
+  if (isKnownCrypto && category !== 'crypto') {
+    category = 'crypto';
+    if (!symbolOrId) symbolOrId = parts[0];
+  }
 
   // Check if navigation originated from Favorites
   const fromSource = searchParams.get('from');
@@ -37,7 +62,7 @@ export const AssetDetailsPage: React.FC = () => {
 
   // Hooks for each category
   const isStock = category === 'stock';
-  const isCrypto = category === 'crypto';
+  const isCrypto = isKnownCrypto;
   const isCommodity = category === 'commodity';
 
   // Stock queries
@@ -82,7 +107,6 @@ export const AssetDetailsPage: React.FC = () => {
   const error = isStock ? stockError : isCrypto ? cryptoError : commodityError;
 
   // Fallback name from favorites if available
-  const favoriteMatch = favorites.find((f) => f.id === decodedId);
   const displayName = currentAsset?.name || favoriteMatch?.name || symbolOrId || 'Asset';
 
   const isFav = currentAsset ? isFavorite(currentAsset.id) : isFavorite(decodedId);
@@ -279,6 +303,7 @@ export const AssetDetailsPage: React.FC = () => {
           assetId={decodedId}
           currencySymbol={currencySymbol}
           assetName={displayName}
+          currentPrice={currentAsset?.price ?? null}
         />
       )}
 
