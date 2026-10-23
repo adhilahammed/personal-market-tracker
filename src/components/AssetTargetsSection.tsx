@@ -11,9 +11,60 @@ import {
   Eye,
   Info,
 } from 'lucide-react';
-import { TargetEntry } from '../types/targets';
+import { TargetEntry, CustomTargetField } from '../types/targets';
 import { useAssetTargets } from '../hooks/useAssetTargets';
-import { formatCurrency } from '../utils/formatters';
+import { formatCurrency, getLocalDateString } from '../utils/formatters';
+
+interface FormFieldItem {
+  id: string;
+  label: string;
+  value: string;
+}
+
+const DEFAULT_FORM_FIELDS: FormFieldItem[] = [
+  { id: 'f-entry', label: 'Entry', value: '' },
+  { id: 'f-target', label: 'Target', value: '' },
+];
+
+function getEntryFields(entry: TargetEntry): CustomTargetField[] {
+  if (entry.fields && Array.isArray(entry.fields) && entry.fields.length > 0) {
+    return entry.fields.filter((f) => f.value !== null && f.value !== undefined);
+  }
+  const result: CustomTargetField[] = [];
+  if (entry.strongDip !== null && entry.strongDip !== undefined) {
+    result.push({ id: 'strongDip', label: 'Strong Dip', value: entry.strongDip });
+  }
+  if (entry.entry !== null && entry.entry !== undefined) {
+    result.push({ id: 'entry', label: 'Entry', value: entry.entry });
+  }
+  if (entry.target !== null && entry.target !== undefined) {
+    result.push({ id: 'target', label: 'Target', value: entry.target });
+  }
+  if (entry.profitExit !== null && entry.profitExit !== undefined) {
+    result.push({ id: 'profitExit', label: 'Profit Exit', value: entry.profitExit });
+  }
+  return result;
+}
+
+function getFieldColorClass(label: string): string {
+  const l = label.toLowerCase();
+  if (l.includes('strong dip') || l.includes('dip') || l.includes('accumul')) {
+    return 'text-cyan-600 dark:text-cyan-400';
+  }
+  if (l.includes('entry') || l.includes('buy')) {
+    return 'text-emerald-600 dark:text-emerald-400';
+  }
+  if (l.includes('profit') || l.includes('exit')) {
+    return 'text-purple-600 dark:text-purple-400';
+  }
+  if (l.includes('target') || l.includes('goal')) {
+    return 'text-amber-600 dark:text-amber-400';
+  }
+  if (l.includes('stop') || l.includes('sl') || l.includes('loss') || l.includes('risk')) {
+    return 'text-rose-600 dark:text-rose-400';
+  }
+  return 'text-blue-600 dark:text-blue-400';
+}
 
 interface AssetTargetsSectionProps {
   assetId: string;
@@ -46,14 +97,11 @@ export const AssetTargetsSection: React.FC<AssetTargetsSectionProps> = ({
 
   // Form State for creating / editing entries
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formDate, setFormDate] = useState<string>(() => new Date().toISOString().split('T')[0]);
+  const [formDate, setFormDate] = useState<string>(() => getLocalDateString());
   const [formPriceAtSet, setFormPriceAtSet] = useState<string>(() =>
     currentPrice !== null && currentPrice !== undefined ? String(currentPrice) : ''
   );
-  const [formStrongDip, setFormStrongDip] = useState<string>('');
-  const [formEntry, setFormEntry] = useState<string>('');
-  const [formTarget, setFormTarget] = useState<string>('');
-  const [formProfitExit, setFormProfitExit] = useState<string>('');
+  const [formFields, setFormFields] = useState<FormFieldItem[]>(DEFAULT_FORM_FIELDS);
   const [formNotes, setFormNotes] = useState<string>('');
 
   const [notification, setNotification] = useState<string | null>(null);
@@ -79,15 +127,50 @@ export const AssetTargetsSection: React.FC<AssetTargetsSectionProps> = ({
     return isNaN(num) ? null : num;
   };
 
+  const handleAddField = (presetLabel = 'Target') => {
+    setFormFields((prev: FormFieldItem[]) => [
+      ...prev,
+      {
+        id: `field-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        label: presetLabel,
+        value: '',
+      },
+    ]);
+  };
+
+  const handleRemoveField = (id: string) => {
+    setFormFields((prev: FormFieldItem[]) => (prev.length > 1 ? prev.filter((f: FormFieldItem) => f.id !== id) : prev));
+  };
+
+  const handleFieldLabelChange = (id: string, label: string) => {
+    setFormFields((prev: FormFieldItem[]) =>
+      prev.map((f: FormFieldItem) => (f.id === id ? { ...f, label } : f))
+    );
+  };
+
+  const handleFieldValueChange = (id: string, value: string) => {
+    setFormFields((prev: FormFieldItem[]) =>
+      prev.map((f: FormFieldItem) => (f.id === id ? { ...f, value } : f))
+    );
+  };
+
   // Load an existing entry into the form for editing
   const handleEditClick = (entry: TargetEntry) => {
     setEditingId(entry.id);
     setFormDate(entry.date);
     setFormPriceAtSet(entry.priceAtSet !== null ? String(entry.priceAtSet) : '');
-    setFormStrongDip(entry.strongDip !== null ? String(entry.strongDip) : '');
-    setFormEntry(entry.entry !== null ? String(entry.entry) : '');
-    setFormTarget(entry.target !== null ? String(entry.target) : '');
-    setFormProfitExit(entry.profitExit !== null ? String(entry.profitExit) : '');
+    const fields = getEntryFields(entry);
+    if (fields.length > 0) {
+      setFormFields(
+        fields.map((f: CustomTargetField, i: number) => ({
+          id: f.id || `f-${i}-${Date.now()}`,
+          label: f.label,
+          value: f.value !== null && f.value !== undefined ? String(f.value) : '',
+        }))
+      );
+    } else {
+      setFormFields(DEFAULT_FORM_FIELDS);
+    }
     setFormNotes(entry.notes || '');
 
     // Scroll smoothly to form
@@ -100,12 +183,12 @@ export const AssetTargetsSection: React.FC<AssetTargetsSectionProps> = ({
   // Reset form to clean state
   const handleResetForm = () => {
     setEditingId(null);
-    setFormDate(new Date().toISOString().split('T')[0]);
+    setFormDate(getLocalDateString());
     setFormPriceAtSet(currentPrice !== null && currentPrice !== undefined ? String(currentPrice) : '');
-    setFormStrongDip('');
-    setFormEntry('');
-    setFormTarget('');
-    setFormProfitExit('');
+    setFormFields([
+      { id: 'f-entry', label: 'Entry', value: '' },
+      { id: 'f-target', label: 'Target', value: '' },
+    ]);
     setFormNotes('');
   };
 
@@ -113,45 +196,50 @@ export const AssetTargetsSection: React.FC<AssetTargetsSectionProps> = ({
   const handleSaveEntry = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const priceAtSet = parseInput(formPriceAtSet);
-    const strongDip = parseInput(formStrongDip);
-    const entry = parseInput(formEntry);
-    const target = parseInput(formTarget);
-    const profitExit = parseInput(formProfitExit);
+    const priceAtSet = editingId
+      ? parseInput(formPriceAtSet)
+      : (currentPrice ?? parseInput(formPriceAtSet));
+    const date = editingId ? (formDate || getLocalDateString()) : getLocalDateString();
 
-    if (
-      strongDip === null &&
-      entry === null &&
-      target === null &&
-      profitExit === null
-    ) {
+    const parsedFields: CustomTargetField[] = formFields
+      .map((f: FormFieldItem) => ({
+        id: f.id,
+        label: f.label.trim() || 'Target',
+        value: parseInput(f.value),
+      }))
+      .filter((f): f is CustomTargetField => f.value !== null);
+
+    if (parsedFields.length === 0) {
       showToast('Please enter at least one target level');
       return;
     }
 
+    // Legacy fallback mapping
+    const findLegacy = (keywords: string[]) => {
+      const match = parsedFields.find((f: CustomTargetField) =>
+        keywords.some((k) => f.label.toLowerCase().includes(k))
+      );
+      return match ? match.value : null;
+    };
+
+    const entryPayload = {
+      date,
+      priceAtSet,
+      fields: parsedFields,
+      strongDip: findLegacy(['strong dip', 'dip', 'accumul']),
+      entry: findLegacy(['entry', 'buy']),
+      target: findLegacy(['target', 'goal']),
+      profitExit: findLegacy(['profit exit', 'exit']),
+      notes: formNotes.trim(),
+    };
+
     if (editingId) {
-      updateEntry(editingId, {
-        date: formDate,
-        priceAtSet,
-        strongDip,
-        entry,
-        target,
-        profitExit,
-        notes: formNotes.trim(),
-      });
+      updateEntry(editingId, entryPayload);
       showToast('Target entry updated successfully');
       setEditingId(null);
       handleResetForm();
     } else {
-      addEntry({
-        date: formDate,
-        priceAtSet,
-        strongDip,
-        entry,
-        target,
-        profitExit,
-        notes: formNotes.trim(),
-      });
+      addEntry(entryPayload);
       showToast('New target setup saved to history');
       handleResetForm();
     }
@@ -166,10 +254,20 @@ export const AssetTargetsSection: React.FC<AssetTargetsSectionProps> = ({
     }
   };
 
-  // Helper to format date display
-  function formatDatePretty(dateString: string) {
-    if (!dateString) return 'N/A';
+  // Helper to format date display in local timezone
+  function formatDatePretty(dateString: string, createdAt?: string) {
+    if (!dateString && !createdAt) return 'N/A';
     try {
+      if (createdAt) {
+        const d = new Date(createdAt);
+        if (!isNaN(d.getTime())) {
+          return d.toLocaleDateString(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+          });
+        }
+      }
       const [year, month, day] = dateString.split('-');
       if (!year || !month || !day) return dateString;
       const d = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
@@ -201,19 +299,9 @@ export const AssetTargetsSection: React.FC<AssetTargetsSectionProps> = ({
         className="p-5 sm:p-6 rounded-3xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark shadow-sm transition-all"
       >
         <div className="flex items-center justify-between gap-3 mb-4">
-          <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-xl bg-blue-500/10 text-blue-500">
-              {editingId ? <Edit3 size={18} /> : <Plus size={18} />}
-            </span>
-            <div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                {editingId ? 'Edit Target Setup Entry' : 'Create New Target Entry'}
-              </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Set and record custom price targets and accumulation levels
-              </p>
-            </div>
-          </div>
+          <h3 className="text-base font-bold text-slate-900 dark:text-white">
+            {editingId ? 'Edit Target Setup Entry' : 'Create New Target Entry'}
+          </h3>
 
           {editingId && (
             <button
@@ -228,157 +316,63 @@ export const AssetTargetsSection: React.FC<AssetTargetsSectionProps> = ({
         </div>
 
         <form onSubmit={handleSaveEntry} className="space-y-4">
-          {/* Row 1: Date & Share Price at Set Time */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            <div className="space-y-1">
-              <label
-                htmlFor="input-target-date"
-                className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400"
+          {/* Dynamic Target Levels */}
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                Target Levels ({formFields.length})
+              </span>
+              <button
+                type="button"
+                onClick={() => handleAddField('Target')}
+                className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:text-blue-500"
               >
-                Date When Target is Set
-              </label>
-              <div className="relative rounded-xl border border-border-light dark:border-border-dark bg-slate-50/70 dark:bg-slate-900/60 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
-                <input
-                  id="input-target-date"
-                  type="date"
-                  value={formDate}
-                  onChange={(e) => setFormDate(e.target.value)}
-                  required
-                  className="w-full px-3.5 py-2.5 text-xs font-bold text-slate-900 dark:text-white bg-transparent focus:outline-none"
-                />
-              </div>
+                <Plus size={13} className="stroke-[2.5]" />
+                <span>Add Field</span>
+              </button>
             </div>
 
-            <div className="space-y-1">
-              <label
-                htmlFor="input-target-price-at-set"
-                className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400"
-              >
-                {isCryptoAsset ? 'Price at Set Time (USD $)' : 'Share Price at Set Time'}
-              </label>
-              <div className="relative rounded-xl border border-border-light dark:border-border-dark bg-slate-50/70 dark:bg-slate-900/60 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 select-none">
-                  {effectiveCurrencySymbol}
-                </span>
-                <input
-                  id="input-target-price-at-set"
-                  type="number"
-                  step="any"
-                  placeholder={currentPrice ? String(currentPrice) : isCryptoAsset ? 'e.g. 64500.00' : 'e.g. 1025.50'}
-                  value={formPriceAtSet}
-                  onChange={(e) => setFormPriceAtSet(e.target.value)}
-                  className="w-full pl-8 pr-16 py-2.5 text-xs font-bold font-mono text-slate-900 dark:text-white bg-transparent focus:outline-none"
-                />
-                {currentPrice !== null && currentPrice !== undefined && (
-                  <button
-                    type="button"
-                    onClick={() => setFormPriceAtSet(String(currentPrice))}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20 transition-colors"
-                    title="Use live market price"
-                  >
-                    Live Price
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {formFields.map((field: FormFieldItem) => (
+                <div
+                  key={field.id}
+                  className="p-3 rounded-2xl border border-border-light dark:border-border-dark bg-slate-50/70 dark:bg-slate-900/60 focus-within:border-blue-500 transition-all space-y-2"
+                >
+                  <div className="flex items-center justify-between gap-1">
+                    <input
+                      type="text"
+                      value={field.label}
+                      onChange={(e) => handleFieldLabelChange(field.id, e.target.value)}
+                      placeholder="Field Name"
+                      className={`w-full text-[11px] font-bold uppercase tracking-wider bg-transparent focus:outline-none ${getFieldColorClass(field.label)}`}
+                    />
+                    {formFields.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveField(field.id)}
+                        className="p-1 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 transition-colors"
+                        title="Remove field"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    )}
+                  </div>
 
-          {/* Row 2: Strong Dip, Entry, Target, Profit Exit */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5">
-            {/* Strong Dip Input */}
-            <div className="space-y-1">
-              <label
-                htmlFor="input-target-strong-dip"
-                className="block text-[11px] font-bold uppercase tracking-wider text-cyan-600 dark:text-cyan-400"
-              >
-                Strong Dip
-              </label>
-              <div className="relative rounded-xl border border-border-light dark:border-border-dark bg-slate-50/70 dark:bg-slate-900/60 focus-within:border-cyan-500 focus-within:ring-2 focus-within:ring-cyan-500/20 transition-all">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 select-none">
-                  {effectiveCurrencySymbol}
-                </span>
-                <input
-                  id="input-target-strong-dip"
-                  type="number"
-                  step="any"
-                  placeholder={isCryptoAsset ? 'e.g. 58000' : 'e.g. 95000'}
-                  value={formStrongDip}
-                  onChange={(e) => setFormStrongDip(e.target.value)}
-                  className="w-full pl-7 pr-3 py-2.5 text-xs font-bold font-mono text-slate-900 dark:text-white bg-transparent focus:outline-none"
-                />
-              </div>
-            </div>
-
-            {/* Entry Input */}
-            <div className="space-y-1">
-              <label
-                htmlFor="input-target-entry"
-                className="block text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400"
-              >
-                Entry
-              </label>
-              <div className="relative rounded-xl border border-border-light dark:border-border-dark bg-slate-50/70 dark:bg-slate-900/60 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 select-none">
-                  {effectiveCurrencySymbol}
-                </span>
-                <input
-                  id="input-target-entry"
-                  type="number"
-                  step="any"
-                  placeholder={isCryptoAsset ? 'e.g. 62000' : 'e.g. 98000'}
-                  value={formEntry}
-                  onChange={(e) => setFormEntry(e.target.value)}
-                  className="w-full pl-7 pr-3 py-2.5 text-xs font-bold font-mono text-slate-900 dark:text-white bg-transparent focus:outline-none"
-                />
-              </div>
-            </div>
-
-            {/* Target Input */}
-            <div className="space-y-1">
-              <label
-                htmlFor="input-target-goal"
-                className="block text-[11px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400"
-              >
-                Target
-              </label>
-              <div className="relative rounded-xl border border-border-light dark:border-border-dark bg-slate-50/70 dark:bg-slate-900/60 focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/20 transition-all">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 select-none">
-                  {effectiveCurrencySymbol}
-                </span>
-                <input
-                  id="input-target-goal"
-                  type="number"
-                  step="any"
-                  placeholder={isCryptoAsset ? 'e.g. 75000' : 'e.g. 105000'}
-                  value={formTarget}
-                  onChange={(e) => setFormTarget(e.target.value)}
-                  className="w-full pl-7 pr-3 py-2.5 text-xs font-bold font-mono text-slate-900 dark:text-white bg-transparent focus:outline-none"
-                />
-              </div>
-            </div>
-
-            {/* Profit Exit Input */}
-            <div className="space-y-1">
-              <label
-                htmlFor="input-target-profit-exit"
-                className="block text-[11px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400"
-              >
-                Profit Exit
-              </label>
-              <div className="relative rounded-xl border border-border-light dark:border-border-dark bg-slate-50/70 dark:bg-slate-900/60 focus-within:border-purple-500 focus-within:ring-2 focus-within:ring-purple-500/20 transition-all">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 select-none">
-                  {effectiveCurrencySymbol}
-                </span>
-                <input
-                  id="input-target-profit-exit"
-                  type="number"
-                  step="any"
-                  placeholder={isCryptoAsset ? 'e.g. 85000' : 'e.g. 112000'}
-                  value={formProfitExit}
-                  onChange={(e) => setFormProfitExit(e.target.value)}
-                  className="w-full pl-7 pr-3 py-2.5 text-xs font-bold font-mono text-slate-900 dark:text-white bg-transparent focus:outline-none"
-                />
-              </div>
+                  <div className="relative rounded-xl border border-border-light dark:border-border-dark bg-white dark:bg-slate-800/80 focus-within:border-blue-500">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 select-none">
+                      {effectiveCurrencySymbol}
+                    </span>
+                    <input
+                      type="number"
+                      step="any"
+                      placeholder="Price"
+                      value={field.value}
+                      onChange={(e) => handleFieldValueChange(field.id, e.target.value)}
+                      className="w-full pl-7 pr-3 py-2 text-xs font-bold font-mono text-slate-900 dark:text-white bg-transparent focus:outline-none"
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -493,7 +487,7 @@ export const AssetTargetsSection: React.FC<AssetTargetsSectionProps> = ({
                     <div className="flex items-center gap-2">
                       <div className="flex items-center gap-1.5 font-bold text-xs text-slate-900 dark:text-white">
                         <Calendar size={13} className="text-slate-400" />
-                        <span>{formatDatePretty(item.date)}</span>
+                        <span>{formatDatePretty(item.date, item.createdAt)}</span>
                       </div>
 
                       {isActive && (
@@ -511,7 +505,7 @@ export const AssetTargetsSection: React.FC<AssetTargetsSectionProps> = ({
                         onClick={() => {
                           setActiveEntry(item.id);
                           if (editingId) handleResetForm();
-                          showToast(`Loaded ${formatDatePretty(item.date)} into active card`);
+                          showToast(`Loaded ${formatDatePretty(item.date, item.createdAt)} into active card`);
                         }}
                         className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors ${
                           isActive
@@ -571,7 +565,7 @@ export const AssetTargetsSection: React.FC<AssetTargetsSectionProps> = ({
                                 title="Active setup in card"
                               />
                             )}
-                            <span>{formatDatePretty(item.date)}</span>
+                            <span>{formatDatePretty(item.date, item.createdAt)}</span>
                           </div>
                         </td>
                       </tr>
@@ -588,53 +582,20 @@ export const AssetTargetsSection: React.FC<AssetTargetsSectionProps> = ({
                         </td>
                       </tr>
 
-                      {/* Strong Dip */}
-                      <tr className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
-                        <td className="px-4 py-2.5 text-cyan-600 dark:text-cyan-400 font-semibold">
-                          Strong Dip
-                        </td>
-                        <td className="px-4 py-2.5 text-right font-mono font-bold text-cyan-600 dark:text-cyan-400">
-                          {item.strongDip !== null
-                            ? formatCurrency(item.strongDip, effectiveCurrencySymbol)
-                            : '—'}
-                        </td>
-                      </tr>
-
-                      {/* Entry */}
-                      <tr className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
-                        <td className="px-4 py-2.5 text-emerald-600 dark:text-emerald-400 font-semibold">
-                          Entry
-                        </td>
-                        <td className="px-4 py-2.5 text-right font-mono font-bold text-emerald-600 dark:text-emerald-400">
-                          {item.entry !== null
-                            ? formatCurrency(item.entry, effectiveCurrencySymbol)
-                            : '—'}
-                        </td>
-                      </tr>
-
-                      {/* Target */}
-                      <tr className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
-                        <td className="px-4 py-2.5 text-amber-600 dark:text-amber-400 font-semibold">
-                          Target
-                        </td>
-                        <td className="px-4 py-2.5 text-right font-mono font-bold text-amber-600 dark:text-amber-400">
-                          {item.target !== null
-                            ? formatCurrency(item.target, effectiveCurrencySymbol)
-                            : '—'}
-                        </td>
-                      </tr>
-
-                      {/* Profit Exit */}
-                      <tr className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
-                        <td className="px-4 py-2.5 text-purple-600 dark:text-purple-400 font-semibold">
-                          Profit Exit
-                        </td>
-                        <td className="px-4 py-2.5 text-right font-mono font-bold text-purple-600 dark:text-purple-400">
-                          {item.profitExit !== null
-                            ? formatCurrency(item.profitExit, effectiveCurrencySymbol)
-                            : '—'}
-                        </td>
-                      </tr>
+                      {/* Dynamic Target Fields */}
+                      {getEntryFields(item).map((field: CustomTargetField) => (
+                        <tr
+                          key={field.id || field.label}
+                          className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors"
+                        >
+                          <td className={`px-4 py-2.5 font-semibold ${getFieldColorClass(field.label)}`}>
+                            {field.label}
+                          </td>
+                          <td className={`px-4 py-2.5 text-right font-mono font-bold ${getFieldColorClass(field.label)}`}>
+                            {field.value !== null ? formatCurrency(field.value, effectiveCurrencySymbol) : '—'}
+                          </td>
+                        </tr>
+                      ))}
 
                       {/* Status / P&L */}
                       <tr className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">

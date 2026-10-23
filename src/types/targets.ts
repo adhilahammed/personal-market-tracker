@@ -1,11 +1,19 @@
+export interface CustomTargetField {
+  id: string;
+  label: string;
+  value: number | null;
+  color?: string;
+}
+
 export interface TargetEntry {
   id: string;
   date: string; // YYYY-MM-DD
   priceAtSet: number | null; // Share price at the time when target was set
-  strongDip: number | null;
-  entry: number | null;
-  target: number | null;
-  profitExit: number | null;
+  strongDip?: number | null;
+  entry?: number | null;
+  target?: number | null;
+  profitExit?: number | null;
+  fields?: CustomTargetField[];
   notes?: string;
   createdAt: string; // ISO string
 }

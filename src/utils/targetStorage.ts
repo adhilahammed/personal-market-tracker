@@ -5,6 +5,7 @@ import {
   AssetTargetsData,
   StoredAssetTargets,
 } from '../types/targets';
+import { getLocalDateString } from './formatters';
 
 const TARGET_ENTRIES_STORAGE_KEY = 'my_markets_target_entries_v2';
 const LEGACY_TARGETS_STORAGE_KEY = 'my_markets_custom_targets_v1';
@@ -14,7 +15,29 @@ export function getAllStoredTargetEntries(): StoredAssetTargetEntries {
     const raw = localStorage.getItem(TARGET_ENTRIES_STORAGE_KEY);
     if (!raw) return {};
     const parsed = JSON.parse(raw);
-    return typeof parsed === 'object' && parsed !== null ? parsed : {};
+    if (typeof parsed !== 'object' || parsed === null) return {};
+
+    // Auto-migrate any entries whose date was stored in UTC instead of user's local timezone
+    let updated = false;
+    for (const key of Object.keys(parsed)) {
+      const state = parsed[key];
+      if (state && Array.isArray(state.entries)) {
+        for (const entry of state.entries) {
+          if (entry.createdAt) {
+            const localDate = getLocalDateString(new Date(entry.createdAt));
+            if (entry.date !== localDate) {
+              entry.date = localDate;
+              updated = true;
+            }
+          }
+        }
+      }
+    }
+    if (updated) {
+      localStorage.setItem(TARGET_ENTRIES_STORAGE_KEY, JSON.stringify(parsed));
+    }
+
+    return parsed;
   } catch (e) {
     console.error('Error reading target entries from localStorage:', e);
     return {};
@@ -51,7 +74,7 @@ export function getAssetTargetsState(assetId: string): AssetTargetsState {
 
         const migratedEntry: TargetEntry = {
           id: `migrated-${Date.now()}`,
-          date: new Date().toISOString().split('T')[0],
+          date: getLocalDateString(),
           priceAtSet: null,
           strongDip: parseNum(legacy.buyHeavily?.targetPrice),
           entry: parseNum(legacy.buy?.targetPrice),
@@ -171,7 +194,7 @@ export function saveAssetTargets(assetId: string, targets: AssetTargetsData): vo
   const state = getAssetTargetsState(assetId);
   const newEntry: TargetEntry = {
     id: `entry-${Date.now()}`,
-    date: new Date().toISOString().split('T')[0],
+    date: getLocalDateString(),
     priceAtSet: null,
     strongDip: parseNum(targets.buyHeavily.targetPrice),
     entry: parseNum(targets.buy.targetPrice),
